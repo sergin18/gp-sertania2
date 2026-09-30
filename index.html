@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sertânia: Desafio de Gestão 2.0</title>
+<meta name="description" content="Simulação educativa fictícia de gestão pública municipal inspirada em um município do sertão pernambucano.">
+<style>
+:root{--sand:#f1e6cb;--sand2:#e4d3aa;--paper:#fbf6e8;--green:#1f5d43;--green2:#2f8a5f;--blue:#2a6f97;--ochre:#c8902f;--red:#b23a2e;--earth:#5b3e29;--ink:#2a2118;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--sand);line-height:1.45}
+[hidden]{display:none!important}
+.screen{min-height:100vh}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* home */
+#home{position:relative;overflow:hidden;background:linear-gradient(#7fb6cf 0%,#cfe3dc 45%,#f0dfb3 75%);display:flex;align-items:center;justify-content:center;padding:24px}
+.sun{position:absolute;top:8%;right:12%;width:120px;height:120px;border-radius:50%;background:#f7c85a;box-shadow:0 0 90px 30px #f7c85a88}
+.hills{position:absolute;inset:auto 0 0 0;height:32%;background:linear-gradient(#b98a4a,#8a5f33);clip-path:polygon(0 45%,18% 20%,38% 40%,60% 10%,82% 38%,100% 18%,100% 100%,0 100%)}
+.hero{position:relative;max-width:640px;text-align:center;background:#fbf6e8ee;padding:36px 28px;border-radius:22px;box-shadow:0 20px 60px #5b3e2955}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,10vw,5.5rem);margin:0;letter-spacing:.06em;color:var(--green);line-height:1}
+h2{margin:6px 0 16px;font-size:1.2rem;letter-spacing:.35em;color:var(--earth)}
+.sub{font-size:1.15rem;font-weight:600;margin:0 0 10px}
+.txt{margin:0 0 22px;color:#5c4d3b;font-style:italic}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.note{margin:22px 0 0;font-size:.82rem;color:#6d5d47}
+
+.btn{border:2px solid var(--green);background:transparent;color:var(--green);padding:10px 18px;border-radius:999px;font-weight:700;transition:.15s}
+.btn:hover{background:var(--green);color:#fff}
+.btn.main{background:var(--green);color:#fff}
+.btn.main:hover{background:var(--green2);border-color:var(--green2)}
+.btn.ghost{border-color:var(--red);color:var(--red)}
+.btn.ghost:hover{background:var(--red);color:#fff}
+.btn.small{padding:6px 14px}
+.btn.big{width:100%;padding:16px;font-size:1.1rem;border-radius:var(--r);margin-top:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* game */
+.top{position:sticky;top:0;z-index:5;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--green);color:#fff;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.12em;font-size:.95rem}
+.date{font-family:Georgia,serif;font-size:1.3rem}
+.money{margin-left:auto;text-align:right}
+.money span{display:block;font-size:.75rem;opacity:.8}
+.money strong{font-size:clamp(1.5rem,4vw,2.2rem);font-family:Georgia,serif}
+.top .btn{color:#fff;border-color:#fff}
+.top .btn:hover{background:#fff;color:var(--green)}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:20px;padding:20px;max-width:1200px;margin:auto}
+.inds{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.ind{position:relative;background:var(--paper);border-radius:var(--r);padding:12px 14px;border:1px solid var(--sand2)}
+.ind .h{display:flex;justify-content:space-between;font-weight:600;font-size:.92rem}
+.ind .v{font-family:Georgia,serif;font-size:1.9rem;line-height:1.1}
+.bar{height:9px;background:var(--sand2);border-radius:9px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--green2);border-radius:9px;transition:width .9s cubic-bezier(.2,.8,.2,1),background .4s}
+.bar i.mid{background:var(--ochre)}.bar i.low{background:var(--red)}
+.chip{position:absolute;right:12px;bottom:34px;font-weight:800;font-size:.85rem;animation:up 2.2s forwards}
+.chip.p{color:var(--green2)}.chip.n{color:var(--red)}
+@keyframes up{0%{opacity:0;transform:translateY(8px)}15%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.card{background:var(--paper);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border:1px solid var(--sand2)}
+.card h3{margin:0 0 10px;font-size:1rem;color:var(--earth)}
+.map{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:64px 64px 56px;gap:6px;grid-template-areas:"c c" "b r" "e o"}
+.z{display:flex;align-items:center;justify-content:center;text-align:center;font-size:.78rem;font-weight:600;border-radius:10px;padding:4px;color:#fff;transition:.3s}
+#a-centro{grid-area:c;background:var(--blue)}#a-bairros{grid-area:b;background:#5c8fa8}
+#a-rural{grid-area:r;background:var(--green2)}#a-comunid{grid-area:o;background:#7a9a45}
+#a-estradas{grid-area:e;background:var(--earth)}
+.z.hot{transform:scale(1.04);box-shadow:0 0 0 4px var(--ochre),0 0 22px var(--ochre);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 4px var(--red),0 0 22px var(--red)}}
+dl{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin:0;font-size:.9rem}
+dt{color:#6d5d47}dd{margin:0;font-weight:700;text-align:right}
+.feed{list-style:none;margin:0;padding:0;font-size:.88rem;max-height:240px;overflow:auto}
+.feed li{padding:6px 0;border-bottom:1px dashed var(--sand2)}
+.feed small{color:#8a7a62;display:block}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:#20160cbb;display:flex;align-items:center;justify-content:center;padding:14px;z-index:20;overflow:auto}
+.modal{background:var(--paper);border-radius:20px;max-width:640px;width:100%;padding:24px;max-height:94vh;overflow:auto;animation:pop .25s}
+@keyframes pop{from{transform:scale(.94);opacity:0}}
+.modal h3{font-family:Georgia,serif;font-size:1.6rem;margin:6px 0 8px;color:var(--green)}
+.modal ul{padding-left:20px}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--sand2);color:var(--earth);margin-right:6px}
+.tag.g2{background:#f3d9a0}.tag.g3{background:var(--red);color:#fff}.tag.g0{background:#cfe8d6;color:var(--green)}
+.opt{display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left;margin-top:10px;padding:12px 14px;border-radius:12px;border:2px solid var(--sand2);background:#fff;transition:.15s}
+.opt:hover:not(:disabled){border-color:var(--green);transform:translateX(3px)}
+.opt:disabled{opacity:.5;cursor:not-allowed}
+.opt b{white-space:nowrap;color:var(--earth)}
+.opt small{display:block;color:#7b6b52}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.stat{background:var(--paper);border:1px solid var(--sand2);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-family:Georgia,serif;font-size:1.5rem;color:var(--green)}
+.stat span{font-size:.8rem;color:#6d5d47}
+.diffs{display:grid;gap:10px;margin-top:12px}
+
+/* end */
+#end{padding:24px 16px;max-width:980px;margin:auto}
+#end h1{font-size:clamp(2rem,7vw,3.6rem)}
+.timeline{border-left:3px solid var(--green2);margin:10px 0 0 6px;padding-left:16px;font-size:.92rem}
+.timeline p{margin:0 0 8px}
+.quote{font-family:Georgia,serif;font-size:1.3rem;text-align:center;color:var(--earth);margin:26px 0;font-style:italic}
+.report{background:var(--paper);border-left:5px solid var(--ochre);padding:14px 18px;border-radius:10px}
+
+/* toasts */
+.toasts{position:fixed;top:14px;right:14px;z-index:40;display:grid;gap:8px;max-width:min(340px,calc(100vw - 28px))}
+.toast{background:#fff;border-left:6px solid var(--blue);border-radius:10px;padding:10px 14px;box-shadow:0 8px 24px #0003;animation:pop .25s;font-size:.9rem}
+.toast.y{border-color:var(--ochre)}.toast.r{border-color:var(--red)}.toast.g{border-color:var(--green2)}
+.toast b{display:block;font-size:.78rem;letter-spacing:.06em}
+
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+@media(max-width:520px){.hero{padding:26px 16px}.opt{flex-direction:column;gap:2px}.modal{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.scene{padding:10px}
+.scene .map{position:relative;grid-template-rows:84px 84px 66px;gap:8px}
+.z{flex-direction:column;gap:2px;font-size:.8rem}
+.z .ic{font-size:1.7rem;letter-spacing:2px}
+.z.warn{filter:saturate(.65) brightness(.92)}.z.bad{filter:saturate(.35) brightness(.75)}
+.wx{position:absolute;top:6px;right:8px;font-size:1.5rem;z-index:2;background:#fffa;border-radius:999px;padding:0 8px}
+.walker{position:absolute;bottom:4px;left:0;font-size:1.2rem;z-index:2;pointer-events:none;animation:walk 16s linear infinite}
+.walker+.walker{animation-duration:23s;animation-delay:-9s;bottom:70px}
+@keyframes walk{to{left:calc(100% - 22px)}}
+.scn{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:var(--sand2);margin:8px 0}
+.scn .big{font-size:2.4rem}
+.say{font-style:italic;font-size:1.05rem;border-left:4px solid var(--ochre);padding-left:10px;margin:10px 0}
+.adv{display:grid;gap:6px;margin:10px 0;font-size:.88rem}
+.adv div{background:#fff;border-radius:10px;padding:6px 10px;border:1px solid var(--sand2)}
+.news{background:#fff;border:1px dashed var(--earth);padding:10px 12px;border-radius:10px;font-family:Georgia,serif;margin:10px 0}
+
+.nav{display:flex;gap:8px;overflow-x:auto;padding:12px 20px 0;max-width:1200px;margin:auto}
+.nav button{flex:1 0 auto;background:var(--paper);border:1px solid var(--sand2);border-radius:12px;padding:10px 14px;font-weight:700;color:var(--green);white-space:nowrap;transition:.15s}
+.nav button:hover{transform:translateY(-2px);box-shadow:0 6px 14px #0002;border-color:var(--green)}
+.gv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.gv div{background:#fff;border:1px solid var(--sand2);border-radius:12px;padding:8px 10px}
+.gv span{font-size:.78rem;color:#6d5d47;display:block}.gv b{font-family:Georgia,serif;font-size:1.3rem;color:var(--green)}.gv small{color:#8a7a62;margin-left:4px}
+.modal.wide{max-width:880px}
+.vm{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.vc{background:#fff;border:1px solid var(--sand2);border-radius:12px;padding:10px 12px;animation:pop .3s both;font-size:.88rem}
+.vc b{display:block;font-family:Georgia,serif;font-size:1.05rem}.vc .bar{margin:6px 0}.vc button,.pc button{margin-top:6px}
+.chip2{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;background:var(--sand2);margin-right:4px}
+.pc{background:#fff;border:1px solid var(--sand2);border-radius:14px;padding:12px 14px;margin-top:10px;animation:pop .3s both}
+.modal.vote{text-align:center;max-width:720px;min-height:60vh;display:flex;flex-direction:column;justify-content:center}
+.vtitle{letter-spacing:.18em;font-size:.78rem;color:var(--earth);font-weight:800}
+.vname{font-family:Georgia,serif;font-size:clamp(1.5rem,6vw,2.5rem);margin:14px 0;animation:pop .3s}
+.vvote{font-size:clamp(2.6rem,13vw,5.5rem);font-weight:900;animation:pop .35s;line-height:1.1}
+.vvote.y{color:var(--green2)}.vvote.n{color:var(--red)}.vvote.a{color:#7a6d5a}
+.vscore{font-size:1.6rem;font-family:Georgia,serif;margin:14px 0}
+.vbar{height:10px;background:var(--sand2);border-radius:10px;overflow:hidden;margin:10px 0}.vbar i{display:block;height:100%;background:var(--green2);transition:width .4s}
+.paper{background:#fffdf4;border:1px solid var(--earth);border-radius:6px;padding:16px;font-family:Georgia,serif}
+.paper h1{font-size:clamp(1.7rem,6vw,2.4rem);letter-spacing:.05em;margin:0;text-align:center;color:var(--earth);border-bottom:3px double var(--earth)}
+.paper .sl{text-align:center;font-style:italic;margin:6px 0 12px;font-size:.88rem}
+.head{font-size:1.6rem;font-weight:700;margin:6px 0;line-height:1.2}
+.nw{border-top:1px solid var(--sand2);padding:8px 0;font-size:.9rem}.nw b{display:block;font-size:1.05rem}
+.credit{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:.75rem;letter-spacing:.14em;color:#5b3e29b0;z-index:1}
+
+</style>
+</head>
+<body>
+
+<section id="home" class="screen">
+  <div class="sun"></div>
+  <div class="hills"></div>
+  <div class="hero">
+    <h1>SERTÂNIA</h1>
+    <h2>DESAFIO DE GESTÃO · 2.0</h2>
+    <p class="sub">Você recebeu as chaves da cidade. Agora precisa decidir o que fazer com elas.</p>
+    <p class="txt">“Administre recursos, enfrente imprevistos, escolha suas prioridades e descubra as consequências das suas decisões.”</p>
+    <div class="btns">
+      <button id="bContinue" class="btn main" hidden>CONTINUAR MANDATO</button>
+      <button id="bNew" class="btn main">NOVO MANDATO</button>
+      <button id="bHow" class="btn">COMO JOGAR</button>
+      <button id="bAbout" class="btn">SOBRE O SIMULADOR</button>
+      <button id="bErase" class="btn ghost" hidden>APAGAR PROGRESSO</button>
+    </div>
+    <p class="note">Simulação educativa fictícia inspirada na realidade de um município do sertão pernambucano.</p>
+  </div>
+  <footer class="credit">Desenvolvido por Serg!n</footer>
+</section>
+
+<section id="game" class="screen" hidden>
+  <header class="top">
+    <div>
+      <div class="brand">PREFEITURA DE SERTÂNIA</div>
+      <div id="date" class="date"></div>
+    </div>
+    <div class="money">
+      <span>Orçamento disponível</span>
+      <strong id="budget"></strong>
+    </div>
+    <button id="bMenu" class="btn small">Menu</button>
+  </header>
+  <nav class="nav" id="nav" aria-label="Gestão"><button data-act="cam">🏛️ Câmara</button><button data-act="proj">📋 Projetos</button><button data-act="cons">🧑‍💼 Conselheiro</button><button data-act="trib">📰 Tribuna do Mocotó</button></nav>
+  <main class="grid">
+    <div class="col">
+      <div class="card scene">
+        <h3>Mapa do município</h3>
+        <div class="map" id="map">
+          <div class="wx" id="wx" title="Clima e humor da população"></div><span class="walker">🚶</span><span class="walker">🐐</span>
+          <div id="a-centro" class="z">Centro urbano</div>
+          <div id="a-bairros" class="z">Bairros</div>
+          <div id="a-rural" class="z">Zona rural</div>
+          <div id="a-comunid" class="z">Comunidades rurais</div>
+          <div id="a-estradas" class="z">Estradas</div>
+        </div>
+      </div>
+      <div id="inds" class="inds"></div>
+      <div class="card" id="gov" style="margin-top:14px"></div>
+      <button id="bNext" class="btn main big">Avançar para o próximo mês</button>
+    </div>
+    <aside class="side">
+      <div class="card fin">
+        <h3>Finanças do mandato</h3>
+        <dl>
+          <dt>Receitas</dt><dd id="fRec"></dd>
+          <dt>Gastos no mandato</dt><dd id="fGas"></dd>
+          <dt>Despesas previstas (mês)</dt><dd id="fDes"></dd>
+          <dt>Receita prevista (mês)</dt><dd id="fRev"></dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3>📰 Tribuna do Mocotó</h3>
+        <ul id="feed" class="feed"></ul>
+        <button class="btn small" data-act="trib">Abrir Tribuna</button>
+      </div>
+    </aside>
+  </main>
+</section>
+
+<section id="end" class="screen" hidden></section>
+
+<div id="overlay" class="overlay" hidden><div id="modal" class="modal" role="dialog" aria-modal="true"></div></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   SERTÂNIA: DESAFIO DE GESTÃO — simulação fictícia e educativa
+   Valores em milhares de reais (500 = R$ 500.000)
+   Efeitos: s saúde, e educação, i infra, a água, m ambiente,
+   c economia, r zona rural, t transparência, p aprovação, $ orçamento
+   ========================================================= */
+
+/* ---------- ESTADO E CONSTANTES ---------- */
+const IND = [['s','Saúde','🏥'],['e','Educação','📚'],['i','Infraestrutura','🚧'],['a','Abastecimento','💧'],['m','Meio ambiente','🌱'],['c','Economia','💼'],['r','Zona rural','🌾'],['t','Transparência','🏛️'],['p','Aprovação popular','😊']];
+const K = IND.map(x => x[0]);
+const LBL = Object.fromEntries(IND.map(x => [x[0], x[1]]));
+const MES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIFF = {
+  normal:{n:'Normal',b:20000,neg:1,rev:1,imp:.3,d:'Eventos equilibrados.'},
+  desafio:{n:'Desafio',b:15000,neg:1.4,rev:.9,imp:.4,d:'Mais eventos negativos e menos orçamento.'},
+  caos:{n:'Caos',b:9000,neg:1.9,rev:.8,imp:.6,d:'Eventos frequentes, crises e orçamento extremamente limitado.'}
+};
+const SAVE = 'sertania_save_v2', SAVE1 = 'sertania_save_v1';
+let S = null;
+const $ = s => document.querySelector(s);
+const fmt = v => 'R$ ' + Math.round(v * 1000).toLocaleString('pt-BR');
+const clamp = v => Math.max(0, Math.min(100, v));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const fx = s => { const o = {}; (s || '').split(' ').forEach(t => { if (t) o[t[0]] = (o[t[0]] || 0) + parseFloat(t.slice(1)); }); return o; };
+
+/* ---------- BANCO DE EVENTOS ---------- */
+/* ev(id, categoria, área, gravidade(0 positivo,1,2 grave,3 crise), título, descrição, probabilidade,
+      opções[[rótulo, custo, efeitos, {set, sch:[[atraso,id]], r:[prob, efeitosSim, efeitosNão], m}]], condição, bônus por flags) */
+const EV = [];
+const ev = (id, cat, area, g, t, d, p, o, w, ifs) => EV.push({ id, cat, area, g, t, d, p, o, w, ifs });
+const SAUDE = 'Saúde', EDU = 'Educação', INF = 'Infraestrutura', RUR = 'Zona rural', AGU = 'Água', ECO = 'Economia', AMB = 'Meio ambiente', CUL = 'Cultura', TRA = 'Transparência', EME = 'Emergência', FIN = 'Finanças', ASS = 'Assistência social', MOB = 'Mobilidade', ADM = 'Administração', POL = 'Política pública';
+
+/* Saúde */
+ev('posto', SAUDE, 'bairros', 1, 'Unidade de saúde com problemas', 'Uma unidade de saúde apresenta problemas estruturais e funcionários relatam falta de equipamentos.', 15, [
+  ['Reforma completa', 900, 's14 p6 i1', { set: 'posto' }], ['Compra emergencial de equipamentos', 250, 's8 p3'],
+  ['Reforma parcial', 400, 's6 p2', { sch: [[8, 'posto2']] }], ['Adiar', 0, 's-6 p-5', { sch: [[6, 'filas']] }]]);
+ev('posto2', SAUDE, 'bairros', 1, 'A reforma parcial mostrou limites', 'Uma decisão tomada há algumas rodadas cobra o preço: surgiu infiltração na parte não reformada da unidade.', 0, [
+  ['Concluir a reforma', 350, 's7 p2'], ['Remendo rápido', 80, 's2'], ['Deixar como está', 0, 's-4 p-3']]);
+ev('filas', SAUDE, 'bairros', 1, 'Filas crescem na saúde', 'Sem a estrutura adequada, as filas de atendimento aumentaram e a população reclama.', 0, [
+  ['Mutirão de consultas', 260, 's9 p4'], ['Ampliar horário de atendimento', 140, 's4 p1 e-1'], ['Ignorar', 0, 's-7 p-8']]);
+ev('dengue', SAUDE, 'bairros', 2, 'Surto de arboviroses', 'Casos de dengue aumentam rapidamente nos bairros.', 8, [
+  ['Campanha e mutirão de limpeza', 300, 's8 p4 m2'], ['Fumacê emergencial', 150, 's4 p1 m-3'], ['Apenas orientação pela imprensa', 20, 's-8 p-6']]);
+ev('ambul', SAUDE, 'comunid', 1, 'Ambulância quebrada', 'A única ambulância que atende comunidades distantes parou de funcionar.', 10, [
+  ['Comprar ambulância nova', 380, 's7 p3 r3'], ['Consertar a antiga', 90, 's3 r1'], ['Pedir apoio a um consórcio regional', 40, 's1', { r: [.55, 's7 r4 $250', 'p-1'] }]]);
+ev('medicos', SAUDE, 'rural', 1, 'Falta de médicos', 'Equipes de saúde da família estão incompletas e comunidades ficam sem atendimento regular.', 8, [
+  ['Incentivo salarial', 280, 's10 p3 c-1'], ['Contratos temporários', 120, 's5 p1'], ['Aguardar programa estadual', 30, 's-2', { r: [.5, 's10 $200', 's-3 p-2'] }]]);
+ev('vacina', SAUDE, 'rural', 0, 'Campanha estadual de vacinação', 'Um programa fictício oferece vacinas, mas exige que o município mobilize equipes.', 8, [
+  ['Busca ativa na zona rural', 180, 's6 r4 p2'], ['Vacinar apenas nas unidades', 60, 's3 r-1'], ['Não participar', 0, 's-3 p-2']]);
+ev('demSaude', SAUDE, 'centro', 0, 'Aumento inesperado de demanda', 'Uma unidade recebe muito mais pacientes do que o previsto por causa de uma migração sazonal.', 3, [
+  ['Reforçar equipe', 200, 's6 p3'], ['Redirecionar pacientes', 0, 's-3 p-2 i-1']]);
+/* Educação */
+ev('escola', EDU, 'bairros', 1, 'Escola precisa de reparos urgentes', 'Uma escola precisa de manutenção urgente antes do início das aulas.', 14, [
+  ['Reforma completa', 700, 'e13 p5 s-1'], ['Reparos emergenciais', 200, 'e6 p2'], ['Adiar para o próximo semestre', 0, 'e-6 p-4', { sch: [[7, 'evasao']] }], ['Buscar parceria', 40, 'e2', { r: [.55, 'e10 $300 p2', 'p-1'] }]]);
+ev('transpEsc', EDU, 'rural', 1, 'Transporte escolar em risco', 'Ônibus escolares apresentam desgaste e alunos da zona rural chegam atrasados.', 10, [
+  ['Renovar parte da frota', 600, 'e8 r6 p4'], ['Manutenção geral', 160, 'e4 r2'], ['Reorganizar rotas', 30, 'e1 r-2 p-1']]);
+ev('merenda', EDU, 'centro', 1, 'Problemas com a merenda escolar', 'Fornecedores atrasam a entrega e cardápios estão sendo reduzidos.', 9, [
+  ['Renegociar contratos', 120, 'e4 t2'], ['Compra emergencial', 240, 'e6 p3 c-1'], ['Comprar da agricultura familiar', 200, 'e5 r5 c2']]);
+ev('evasao', EDU, 'bairros', 1, 'Aumento da evasão escolar', 'Diretores notam que mais estudantes deixam as aulas.', 6, [
+  ['Programa de busca ativa', 220, 'e8 p3'], ['Campanha de conscientização', 60, 'e3'], ['Nenhuma ação', 0, 'e-7 p-4']]);
+ev('internet', EDU, 'centro', 0, 'Programa de conectividade escolar', 'Um programa fictício oferece equipamentos se o município preparar a infraestrutura.', 6, [
+  ['Aderir com infraestrutura completa', 450, 'e12 c2 p3'], ['Aderir parcialmente', 150, 'e5'], ['Recusar', 0, 'e-1']]);
+ev('greve', EDU, 'centro', 2, 'Professores ameaçam paralisação', 'A categoria pede reajuste e melhores condições de trabalho.', 6, [
+  ['Conceder reajuste', 500, 'e10 p5 c-1 $-0'], ['Propor plano gradual', 180, 'e3 p1'], ['Recusar negociação', 0, 'e-12 p-9']], s => S.turn > 6);
+ev('biblio', EDU, 'centro', 0, 'Doação de acervo para biblioteca', 'Uma instituição oferece livros, se houver espaço e organização.', 4, [
+  ['Reformar espaço e catalogar', 160, 'e5 p2'], ['Receber sem estrutura', 20, 'e1'], ['Recusar', 0, 'p-1']]);
+/* Infraestrutura */
+ev('estrada', INF, 'estradas', 1, 'Estrada rural intransitável', 'Após vários dias de chuva, um trecho de estrada rural ficou praticamente intransitável.', 15, [
+  ['Recuperar imediatamente', 500, 'i9 r8 p4', { set: 'estradaOk' }], ['Intervenção emergencial', 180, 'i4 r4 p1', { sch: [[15, 'estradaPiora']] }],
+  ['Esperar a estiagem', 0, 'i-3 r-4 p-2', { sch: [[6, 'onibus'], [11, 'reclama'], [17, 'estradaPiora']] }], ['Buscar convênio', 50, 'r1', { r: [.55, 'i8 r6 $150', 'p-1'] }]]);
+ev('onibus', INF, 'estradas', 1, 'Ônibus escolar teve dificuldade', 'Um ônibus escolar teve dificuldade para passar pelo trecho sem manutenção.', 0, [
+  ['Consertar o trecho agora', 320, 'i6 r5 e3'], ['Desviar a rota', 60, 'e-1 r-1'], ['Manter como está', 0, 'e-4 r-3 p-3']]);
+ev('reclama', INF, 'comunid', 1, 'Moradores reclamam do acesso', 'Moradores reclamam da dificuldade de acesso pela estrada esquecida.', 0, [
+  ['Reunião e cronograma público', 20, 't4 p2'], ['Recuperar o trecho', 400, 'i7 r6 p4'], ['Ignorar as queixas', 0, 'p-5 t-2']]);
+ev('estradaPiora', INF, 'estradas', 2, 'Chuva danificou ainda mais a estrada', 'Uma chuva forte piorou o trecho que já estava em más condições.', 0, [
+  ['Reconstrução completa', 700, 'i10 r8 p3'], ['Reparo básico', 250, 'i3 r2'], ['Isolar o trecho', 30, 'i-5 r-6 p-4']], s => !s.flags.estradaOk);
+ev('pav', INF, 'bairros', 1, 'Pedido de pavimentação', 'Moradores de um bairro pedem pavimentação depois de anos de poeira e lama.', 10, [
+  ['Pavimentar todo o bairro', 1200, 'i15 c5 p6 s-2'], ['Pavimentar as ruas principais', 500, 'i7 p3'], ['Cascalhamento simples', 80, 'i2 p1']]);
+ev('dren', INF, 'centro', 1, 'Drenagem urbana insuficiente', 'Técnicos alertam que a drenagem pode falhar na próxima temporada de chuvas.', 8, [
+  ['Grande obra de drenagem', 850, 'i9 p2', { set: 'dren', sch: [[14, 'chuvaBoa']] }], ['Limpeza de galerias', 100, 'i2'], ['Deixar para depois', 0, 'p0']]);
+ev('chuvaBoa', INF, 'centro', 0, 'Poucos pontos de alagamento', 'Após fortes chuvas, a cidade registrou poucos pontos de alagamento graças às obras anteriores.', 0, [
+  ['Divulgar os resultados', 20, 'p6 t3'], ['Seguir em frente', 0, 'p3']]);
+ev('ponte', INF, 'estradas', 2, 'Ponte com rachaduras', 'Uma ponte que liga comunidades apresenta rachaduras visíveis.', 5, [
+  ['Reforma estrutural', 750, 'i10 r6 p4'], ['Restringir tráfego pesado', 60, 'i2 r-2 c-2'], ['Monitorar', 0, 'i-4 r-2']]);
+ev('luz', INF, 'centro', 0, 'Programa de iluminação eficiente', 'Trocar lâmpadas por LED pode reduzir custos, mas exige investimento inicial.', 7, [
+  ['Trocar toda a rede', 650, 'i6 m3 p3 $200'], ['Trocar só o centro', 250, 'i2 p2 $60'], ['Manter como está', 0, 'i-1']]);
+ev('chuvas', INF, 'estradas', 2, 'Chuvas intensas', 'Uma sequência de chuvas fortes provoca problemas em estradas, drenagem, pontes e zona rural.', 9, [
+  ['Mobilizar todas as equipes', 420, 'i6 r3 p3'], ['Atender só os pontos críticos', 150, 'i-2 r-3 p-1'], ['Aguardar o nível baixar', 0, 'i-9 r-7 p-6 s-2']], null,
+  [['dren', 'i7 p4'], ['estradaOk', 'i4 r5 p2']]);
+/* Zona rural */
+ev('estiagem', RUR, 'rural', 2, 'Estiagem prolongada', 'A falta de chuva afeta pequenos produtores e o rebanho.', 9, [
+  ['Distribuir ração e sementes', 320, 'r9 c2 p4'], ['Apoiar só os mais vulneráveis', 130, 'r4 p1'], ['Aguardar apoio de outros níveis de governo', 0, 'r-8 c-3 p-5']]);
+ev('assTec', RUR, 'rural', 0, 'Cooperativa pede assistência técnica', 'Produtores propõem um projeto de manejo e comercialização em conjunto.', 7, [
+  ['Contratar equipe técnica', 260, 'r8 c4 p3'], ['Ceder um técnico da prefeitura', 60, 'r3 c1'], ['Não participar', 0, 'r-2']]);
+ev('escoa', RUR, 'rural', 1, 'Dificuldade para escoar a produção', 'Sem transporte adequado, parte da produção se perde antes de chegar à feira.', 6, [
+  ['Criar rota de escoamento', 300, 'r7 c4 i-1'], ['Feira itinerante', 110, 'r3 c2'], ['Nenhuma ação', 0, 'r-5 c-2']]);
+ev('cerca', RUR, 'comunid', 1, 'Conflito entre comunidades', 'Duas comunidades discordam sobre o uso de um reservatório comunitário.', 5, [
+  ['Mediar com regras claras', 40, 'r3 t2 p2'], ['Ampliar o reservatório', 380, 'r5 a5 p3'], ['Não intervir', 0, 'r-4 p-3']]);
+/* Água */
+ev('agua', AGU, 'comunid', 2, 'Comunidades sem água', 'Comunidades rurais relatam dificuldade de acesso à água.', 12, [
+  ['Operação emergencial de abastecimento', 280, 'a8 r4 p3'], ['Infraestrutura permanente', 1000, 'a16 r8 p5'], ['Atender só as áreas críticas', 130, 'a4 r1'], ['Buscar recursos externos', 50, 'a1', { r: [.55, 'a10 r5 $400', 'p-2'] }]]);
+ev('adutora', AGU, 'centro', 1, 'Vazamento na adutora', 'Uma tubulação antiga vaza e desperdiça água tratada.', 8, [
+  ['Trocar o trecho', 450, 'a10 i2'], ['Remendo emergencial', 90, 'a3', { sch: [[9, 'adutora']] }], ['Aguardar', 0, 'a-7 p-3']]);
+ev('dessal', AGU, 'rural', 0, 'Programa de dessalinizadores', 'Existe possibilidade de instalar dessalinizadores em comunidades com água salobra.', 5, [
+  ['Instalar em várias comunidades', 520, 'a10 r7 m-1 p4'], ['Projeto-piloto', 180, 'a4 r3'], ['Não participar', 0, 'a-1']]);
+ev('pipa', AGU, 'comunid', 1, 'Contrato de carro-pipa vencendo', 'O contrato de abastecimento por carros-pipa está perto do fim.', 6, [
+  ['Renovar com fiscalização', 240, 'a6 t3 r3'], ['Renovar sem mudanças', 190, 'a5 r2 t-2'], ['Reduzir a frota', 90, 'a-3 r-3 $40']]);
+/* Economia, cultura, meio ambiente */
+ev('festival', CUL, 'centro', 0, 'Festival cultural movimenta a cidade', 'Um evento cultural movimentou a cidade e comerciantes pedem apoio da administração.', 9, [
+  ['Investir no evento', 450, 'c6 p6 t-1'], ['Apoiar parcialmente', 180, 'c3 p3'], ['Não utilizar recursos públicos', 0, 'p-2 c-1'], ['Buscar patrocinadores privados', 40, 'p1', { r: [.55, 'c5 p4 $200', 'p-1'] }]]);
+ev('empresa', ECO, 'centro', 0, 'Empresa quer se instalar', 'Uma empresa avalia instalar uma unidade na cidade e pede incentivos.', 5, [
+  ['Incentivo fiscal amplo', 300, 'c12 p4 $-120'], ['Incentivo moderado', 120, 'c6 p2'], ['Sem incentivos', 0, 'c-1']]);
+ev('obraDemora', ECO, 'centro', 1, 'Comerciantes reclamam de obra', 'A demora em uma obra no centro reduz as vendas no comércio local.', 7, [
+  ['Acelerar com turno extra', 200, 'c4 i3 p2'], ['Criar desvio e sinalização', 60, 'c2 p1'], ['Manter o ritmo', 0, 'c-5 p-4']]);
+ev('feira', ECO, 'centro', 0, 'Feira de empreendedores', 'Pequenos empreendedores propõem uma feira mensal com apoio da prefeitura.', 6, [
+  ['Estrutura e divulgação', 200, 'c6 p3'], ['Ceder apenas o espaço', 30, 'c3'], ['Não apoiar', 0, 'c-2']]);
+ev('queimada', AMB, 'rural', 1, 'Focos de queimada', 'Focos de fogo ameaçam áreas de vegetação e pastagens.', 6, [
+  ['Brigada e campanha educativa', 220, 'm7 r3 p2'], ['Apenas fiscalização pontual', 60, 'm2'], ['Nenhuma ação', 0, 'm-8 r-3 p-3']]);
+ev('lixo', AMB, 'bairros', 1, 'Descarte irregular de lixo', 'Pontos de lixo se acumulam e moradores relatam mau cheiro.', 7, [
+  ['Coleta seletiva e ecopontos', 380, 'm9 s2 p4'], ['Mutirão de limpeza', 90, 'm3 p2'], ['Multar infratores', 20, 'm2 p-2 t1']]);
+ev('biblioCul', CUL, 'centro', 0, 'Oficinas culturais para jovens', 'Artistas locais propõem oficinas gratuitas em bairros e comunidades.', 5, [
+  ['Programa completo', 260, 'p4 e3 s1'], ['Apoio simbólico', 60, 'p1'], ['Sem apoio', 0, 'p-1']]);
+/* Transparência, política, admin, sociais */
+ev('info', TRA, 'centro', 1, 'Moradores pedem informações sobre obra', 'Moradores solicitam informações detalhadas sobre uma obra em andamento.', 8, [
+  ['Publicar todos os dados', 20, 't9 p3'], ['Publicar um relatório resumido', 5, 't3 p1'], ['Adiar a divulgação', 0, 't-8 p-5']]);
+ev('irreg', TRA, 'centro', 2, 'Irregularidade administrativa descoberta', 'Uma auditoria interna encontrou falhas em um processo de compras.', 3, [
+  ['Apurar e divulgar tudo', 120, 't12 p2 $60'], ['Corrigir discretamente', 20, 't-3 p-2'], ['Arquivar o caso', 0, 't-12 p-8']]);
+ev('edital', POL, 'centro', 0, 'Edital de recursos para projetos', 'Um programa estadual fictício abriu edital. É preciso preparar um projeto.', 9, [
+  ['Preparar projeto para solicitar recurso', 50, 't1', { r: [.6, '$1000 p3', 'p-1'] }], ['Contratar consultoria para o projeto', 180, 't1', { r: [.85, '$1300 p3', 'p-1'] }], ['Não participar', 0, 'p0']]);
+ev('privada', POL, 'centro', 0, 'Proposta de parceria privada', 'Uma empresa propõe apoiar um serviço em troca de visibilidade.', 5, [
+  ['Aceitar com contrapartidas claras', 30, 'c3 t2 $350 p1'], ['Aceitar sem exigências', 0, 'c2 $500 t-6 p-2'], ['Recusar', 0, 't2']]);
+ev('mob', MOB, 'centro', 1, 'Trânsito confuso no centro', 'Motos e carros disputam espaço em ruas estreitas e há acidentes.', 6, [
+  ['Plano de mobilidade e sinalização', 260, 'i5 s2 c2 p3'], ['Agentes nas horas de pico', 90, 'i2 p1'], ['Nenhuma mudança', 0, 's-2 p-3']]);
+ev('social', ASS, 'bairros', 1, 'Famílias em vulnerabilidade', 'A assistência social relata aumento de famílias sem renda regular.', 8, [
+  ['Ampliar programa de apoio', 320, 'p6 s2 e2 c-1'], ['Cesta básica emergencial', 140, 'p3'], ['Encaminhar a programas de outros governos', 20, 'p-2']]);
+ev('servidor', ADM, 'centro', 1, 'Servidores pedem reajuste', 'Sindicato pede recomposição salarial depois de um período de inflação.', 6, [
+  ['Reajuste integral', 480, 'p4 s2 e2 $-0'], ['Reajuste parcial', 220, 'p1'], ['Congelar salários', 0, 'p-5 s-2 e-2']]);
+ev('maquina', ADM, 'centro', 1, 'Frota da prefeitura em más condições', 'Tratores e caminhões estão parados por falta de peças.', 8, [
+  ['Renovar máquinas', 500, 'i5 r4 p2'], ['Manutenção geral', 130, 'i2 r1'], ['Alugar quando necessário', 60, 'i0 $-20']]);
+/* Raros e muito raros */
+ev('recInes', FIN, 'centro', 0, 'Recurso inesperado', 'Chegou uma transferência extraordinária não prevista no orçamento.', 3, [
+  ['Guardar como reserva', 0, '$1200 t2'], ['Investir imediatamente em serviços', 0, '$400 s4 e4 i4 p4'], ['Dividir com programas sociais', 0, '$700 p6']]);
+ev('oportInv', ECO, 'centro', 0, 'Grande oportunidade de investimento', 'Um grupo propõe um polo de beneficiamento de produtos regionais.', 3, [
+  ['Investir na estrutura', 1400, 'c16 r6 p5'], ['Parceria com contrapartida limitada', 400, 'c7 r2 p2'], ['Recusar', 0, 'c-1']]);
+ev('seca', EME, 'rural', 3, 'Seca severa', 'A estiagem ultrapassou todos os limites e várias comunidades entram em situação crítica.', 2, [
+  ['Plano de emergência total', 1300, 'a12 r12 p5'], ['Ações direcionadas', 550, 'a5 r5 p1'], ['Pedir apoio externo e aguardar', 60, 'a-8 r-10 p-8 s-3']], s => s.turn >= 8);
+ev('crisFin', FIN, 'centro', 3, 'Queda brusca de receitas', 'Uma crise regional derrubou as transferências e a arrecadação.', 1.5, [
+  ['Cortar despesas em várias áreas', 0, 's-4 e-4 i-4 p-6 $500'], ['Renegociar dívidas', 100, 'p-2 t2 $150'], ['Manter tudo e usar reservas', 0, '$-800 p1']], s => s.turn >= 10);
+ev('regional', ASS, 'comunid', 2, 'Emergência regional', 'Municípios vizinhos enfrentam um desastre e centenas de pessoas buscam abrigo.', 2, [
+  ['Abrigo e atendimento completos', 650, 's-2 p8 t2'], ['Apoio limitado', 220, 'p3'], ['Encaminhar a outros locais', 0, 'p-6']]);
+ev('grandeObra', INF, 'centro', 2, 'Grande obra necessária', 'Um reservatório antigo ameaça ceder e exige intervenção de grande porte.', 2, [
+  ['Obra completa', 1500, 'a10 i6 p5'], ['Obra em etapas', 600, 'a4 i2', { sch: [[10, 'grandeObra']] }], ['Monitorar', 0, 'a-5 p-3']]);
+ev('culGrande', CUL, 'centro', 0, 'Evento cultural de grande alcance', 'Um artista regional propõe um grande festival na cidade.', 2, [
+  ['Sediar o festival', 700, 'c10 p9 t-1'], ['Apoio parcial', 250, 'c4 p3'], ['Recusar', 0, 'p-3']]);
+ev('desastre', EME, 'bairros', 3, 'Vendaval e temporal', 'Um forte temporal destelhou casas e derrubou postes.', 2, [
+  ['Resposta completa', 700, 'i5 p6 s1'], ['Atender só famílias mais afetadas', 250, 'i0 p2'], ['Aguardar apoio de fora', 0, 'i-6 p-7 s-2']]);
+/* Crises por indicador baixo */
+ev('crisSaude', SAUDE, 'bairros', 3, 'CRISE NA SAÚDE', 'A demanda aumentou enquanto a estrutura disponível permanece limitada.', 55, [
+  ['Plano emergencial completo', 900, 's16 p6'], ['Contratação temporária', 350, 's8 p2'], ['Pedir ajuda externa', 40, 's1', { r: [.5, 's12 $300', 's-4 p-4'] }]], s => s.ind.s < 25);
+ev('crisEdu', EDU, 'bairros', 3, 'CRISE NA EDUCAÇÃO', 'Escolas com problemas seguidos, evasão alta e queda no rendimento.', 55, [
+  ['Plano emergencial de escolas', 850, 'e16 p6'], ['Reforço escolar e reparos', 320, 'e7 p2'], ['Adiar decisões', 0, 'e-6 p-6']], s => s.ind.e < 25);
+ev('crisAgua', AGU, 'comunid', 3, 'CRISE DE ÁGUA', 'Reservatórios secam e comunidades ficam sem abastecimento regular.', 55, [
+  ['Operação de emergência ampla', 850, 'a16 r6 p6'], ['Carros-pipa nas áreas críticas', 300, 'a7 r2'], ['Pedir apoio externo', 40, 'a1', { r: [.5, 'a12 $300', 'a-5 p-5'] }]], s => s.ind.a < 25);
+ev('crisFin2', FIN, 'centro', 3, 'CRISE FINANCEIRA', 'O caixa está quase vazio e fornecedores ameaçam suspender serviços.', 70, [
+  ['Corte forte de despesas', 0, 's-5 e-5 i-5 p-7 $700'], ['Renegociar dívidas e contratos', 60, 'p-3 t2 $300'], ['Buscar operação de crédito', 0, 'p-2 t-2 $900']], s => s.b < 1500);
+ev('crisAdm', ADM, 'centro', 3, 'CRISE ADMINISTRATIVA', 'Vários serviços estão em situação crítica ao mesmo tempo e a prefeitura perde o controle da agenda.', 90, [
+  ['Reorganizar toda a gestão', 700, 's6 e6 i6 a6 p6'], ['Focar em uma área só', 300, 'p2'], ['Manter a rotina', 0, 'p-8 t-3']], s => K.filter(k => k !== 'p' && s.ind[k] < 30).length >= 3);
+
+/* Imprevistos leves */
+const IMP = [['Uma árvore caiu durante a madrugada.', 'p-1 i-1'], ['Uma equipe conseguiu reduzir custos de uma obra.', '$120 p1'], ['Um projeto recebeu reconhecimento regional.', 'p3'],
+  ['Uma unidade apresentou aumento inesperado na demanda.', 's-2'], ['Uma máquina da prefeitura apresentou defeito.', '$-80 i-1'], ['Moradores elogiaram a limpeza do centro.', 'p2'],
+  ['Um vazamento foi consertado rapidamente.', 'a2 $-30'], ['Uma chuva leve aliviou a estiagem em algumas comunidades.', 'r2 a1']];
+const MSG = { s:['Moradores elogiaram a melhoria na unidade de saúde.','Pacientes reclamam da precariedade no atendimento.'], e:['Pais e professores comemoraram as melhorias nas escolas.','Famílias demonstram preocupação com as escolas.'],
+  i:['Motoristas notaram melhoria nas vias.','Moradores reclamam das condições das ruas.'], a:['Comunidades relatam melhora no acesso à água.','Moradores relatam dificuldade no abastecimento.'],
+  c:['Comerciantes perceberam aquecimento nas vendas.','Comerciantes demonstraram insatisfação com o cenário econômico.'], r:['Comunidades rurais relatam melhora no acesso.','Produtores rurais reclamam do abandono no campo.'],
+  t:['Cidadãos elogiaram a clareza na prestação de contas.','Moradores cobram mais transparência nos gastos.'], m:['Ambientalistas aprovaram a iniciativa.','Denúncias ambientais aumentaram.'] };
+const BOOST = { 'Saúde':'s','Educação':'e','Infraestrutura':'i','Zona rural':'r','Água':'a','Meio ambiente':'m','Economia':'c','Transparência':'t','Finanças':'$','Mobilidade':'i','Cultura':'p' };
+
+/* ---------- ESTADO / SAVE ---------- */
+function newGame(diff) {
+  const D = DIFF[diff];
+  const ind = {}; K.forEach(k => ind[k] = Math.round(rnd(38, 62)));
+  ind.t = Math.round(rnd(45, 65)); ind.p = Math.round(rnd(50, 62));
+  S = { diff, b: D.b, ind, turn: 0, recent: [], pending: [], flags: {}, catSpend: {}, feed: [], yl: [], tl: [], snap: { ...ind }, prev: { ...ind },
+    rec: 0, exp: 0, spent: 0, gain: 0, dec: 0, evs: 0, crises: 0, zero: 0, minB: D.b, minT: 0, bal: 0, advisor: null, council: createCouncil(0), projects: [], news: [], votes: [], unl: [], blocked: {}, plN: 0 };
+  save(); startGame();
+}
+const save = () => { try { localStorage.setItem(SAVE, JSON.stringify(S)); } catch (e) {} };
+const load = () => { try { let s = JSON.parse(localStorage.getItem(SAVE)); if (!s) s = JSON.parse(localStorage.getItem(SAVE1)); return s ? migrate(s) : null; } catch (e) { return null; } };
+const hasSave = () => { const s = load(); return !!(s && s.ind && !s.done); };
+
+/* ---------- ORÇAMENTO E INDICADORES ---------- */
+const year = () => Math.min(4, Math.floor(S.turn / 12) + 1);
+const costMult = () => 1 + .06 * (year() - 1);
+const cost = o => Math.round(o[1] * costMult() / 10) * 10;
+const revenue = () => Math.round((330 + S.ind.c * 1.2) * DIFF[S.diff].rev);
+const expenses = () => Math.round(300 * (1 + .05 * (year() - 1)));
+function apply(o) { for (const k in o) { if (k === '$') { S.b += o[k]; if (o[k] > 0) S.gain += o[k]; } else if (S.ind[k] !== undefined) S.ind[k] = clamp(S.ind[k] + o[k]); } }
+
+/* ---------- SORTEIO ---------- */
+function pick() {
+  const due = S.pending.findIndex(p => p.at <= S.turn);
+  if (due >= 0) { const p = S.pending.splice(due, 1)[0]; S.chained = true; return EV.find(e => e.id === p.id); }
+  S.chained = false;
+  const rec = S.recent.slice(-5), D = DIFF[S.diff];
+  const pool = EV.filter(e => e.p > 0 && !rec.includes(e.id) && (!e.w || e.w(S)));
+  const ws = pool.map(e => {
+    let w = e.p; const b = BOOST[e.cat];
+    if (b === '$') { if (S.b < 3000) w *= 3; } else if (b && b !== 'p') { const v = S.ind[b]; if (v < 35) w *= 2.6; else if (v < 50) w *= 1.5; }
+    w *= e.g >= 1 ? D.neg : 1 / D.neg;
+    if (e.g === 0 && S.b < 2000) w *= .6;
+    return w;
+  });
+  let r = Math.random() * ws.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) { r -= ws[i]; if (r <= 0) return pool[i]; }
+  return pool[0];
+}
+
+/* ---------- CALENDÁRIO / TURNO ---------- */
+function nextTurn() {
+  if (S.turn >= 48) return endGame();
+  const D = DIFF[S.diff], rv = revenue(), ex = expenses();
+  S.b += rv - ex; S.rec += rv; S.exp += ex;
+  ['s','e','i','a','r'].forEach(k => S.ind[k] = clamp(S.ind[k] - rnd(.3, 1)));
+  S.ind.m = clamp(S.ind.m - rnd(0, .5));
+  const core = (S.ind.s + S.ind.e + S.ind.i + S.ind.a) / 4;
+  S.ind.p = clamp(S.ind.p + (core - 50) / 40 + (S.ind.t - 50) / 80 - (S.b < 1500 ? 1.5 : 0) + rnd(-.6, .6));
+  if (Math.random() < D.imp) { const m = IMP[Math.floor(Math.random() * IMP.length)]; apply(fx(m[1])); feed(m[0]); toast('y', 'ATENÇÃO', m[0]); }
+  updateProjects(); S.council.forEach(v => { v.sup *= .8; v.rel = clamp(v.rel + (S.ind.p - 50) / 300 + rnd(-.4, .4)); });
+  if (S.ind.p >= 70 && Math.random() < .12) publishNews('Prefeitura', 'Gestão comemora novos investimentos', 'A avaliação da população segue em alta.');
+  if (S.b < S.minB) { S.minB = S.b; S.minT = S.turn; }
+  render();
+  showEvent(pick());
+}
+
+function showEvent(e) {
+  S.cur = e.id;
+  hot(e.area);
+  const kind = e.g >= 3 ? ['r', 'EMERGÊNCIA'] : e.g === 2 ? ['y', 'ATENÇÃO'] : e.g === 0 ? ['b', 'NOVA OPORTUNIDADE'] : ['b', 'NOVA OCORRÊNCIA'];
+  toast(kind[0], kind[1], S.chained ? 'Uma decisão tomada há algumas rodadas está começando a produzir efeitos...' : e.t);
+  const opts = e.o.map((o, i) => {
+    const c = cost(o), ok = c <= S.b, risk = o[3] && o[3].r ? ' <small>Resultado incerto</small>' : '';
+    return `<button class="opt" data-i="${i}" ${ok ? '' : 'disabled'}><span>${o[0]}${risk}${ok ? '' : '<small>Orçamento insuficiente</small>'}</span><b>${c ? fmt(c) : 'Sem custo'}</b></button>`;
+  }).join('');
+  const sev = ['Oportunidade', 'Ocorrência', 'Situação grave', 'Crise'][e.g];
+  $('#modal').innerHTML = `<span class="tag g${e.g}">${sev}</span><span class="tag">${e.cat}</span>
+    ${S.chained ? '<p><small>Uma decisão anterior voltou a aparecer...</small></p>' : ''}
+    <h3>${e.t}</h3><div class="scn"><span class="big">${CI[e.cat] || '📋'}</span><div><b>${e.cat}</b><br><small>${AREA[e.area]}</small></div></div>
+    <p class="say">${e.d}</p><div class="adv">${advisors(e)}</div><div id="opts">${opts}</div>`;
+  openModal(true);
+  document.querySelectorAll('.opt').forEach(b => b.onclick = () => choose(e, +b.dataset.i));
+  if (![...e.o].some(o => cost(o) <= S.b)) {
+    $('#opts').innerHTML += '<button class="opt" id="noFunds"><span>Sem recursos: nada pode ser feito agora</span><b>Sem custo</b></button>';
+    $('#noFunds').onclick = () => choose(e, -1);
+  }
+}
+
+/* ---------- CONSEQUÊNCIAS ---------- */
+function choose(e, i) {
+  const o = i >= 0 ? e.o[i] : ['Sem recursos para agir', 0, 'p-4 t-1', {}];
+  const x = o[3] || {}, c = cost(o), before = { ...S.ind };
+  S.b -= c; S.spent += c; S.dec++; S.evs++; if (c === 0) S.zero++;
+  S.catSpend[e.cat] = (S.catSpend[e.cat] || 0) + c;
+  if (e.g === 3) S.crises++;
+  apply(fx(o[2]));
+  if (e.id === 'chuvas' || e.id === 'chuvaBoa') S.rain = S.turn + 1;
+  let extra = '';
+  if (x.r) { const ok = Math.random() < x.r[0]; apply(fx(ok ? x.r[1] : x.r[2])); extra = ok ? 'O pedido foi aprovado e os recursos chegaram.' : 'O pedido não foi aprovado desta vez. O custo administrativo foi perdido.'; toast(ok ? 'g' : 'y', ok ? 'RESULTADO POSITIVO' : 'ATENÇÃO', extra); }
+  (e.ifs || []).forEach(f => { if (S.flags[f[0]]) apply(fx(f[1])); });
+  if (x.set) S.flags[x.set] = 1;
+  if (e.id === 'estrada' && i === 0) delete S.flags.estradaNo;
+  (x.sch || []).forEach(s => { if (!(s[1] === 'estradaPiora' && S.flags.estradaOk)) S.pending.push({ at: S.turn + s[0], id: s[1] }); });
+  S.recent.push(e.id); if (S.recent.length > 8) S.recent.shift();
+  S.yl.push({ y: year(), t: e.t, o: o[0], c, cat: e.cat, g: e.g });
+  if (e.g >= 2 || c >= 500) S.tl.push({ y: year(), m: S.turn % 12, t: e.t + ' — ' + o[0] });
+  const notes = K.filter(k => k !== 'p' && k !== 'm' || k === 'm').filter(k => Math.abs(S.ind[k] - before[k]) >= 5 && MSG[k]).slice(0, 2)
+    .map(k => MSG[k][S.ind[k] > before[k] ? 0 : 1]);
+  notes.forEach(feed);
+  feed(`${e.t}: ${o[0]}${c ? ' (' + fmt(c) + ')' : ''}`);
+  if (S.ind.p > before.p + 5) toast('g', 'RESULTADO POSITIVO', 'A população aprovou sua decisão.');
+  const dp = S.ind.p - before.p;
+  const head = dp >= 3 ? `Prefeitura recebe elogios após decisão sobre “${e.t}”` : dp <= -3 ? `Gestão é criticada por decisão sobre “${e.t}”` : `Prefeitura decide sobre “${e.t}” e a cidade aguarda os resultados`;
+  if (e.g === 3) publishNews(NC[e.cat] || 'Cotidiano', `Problema na ${e.cat.toLowerCase()} aumenta pressão sobre Prefeitura`, e.d); else publishNews(NC[e.cat] || 'Prefeitura', head, o[0] + (c ? ' (' + fmt(c) + ')' : '') + '.');
+  if (EVU[e.id]) unlock(EVU[e.id]);
+  $('#modal').innerHTML = `<h3>Decisão registrada</h3><p><b>${o[0]}</b>${c ? ' — ' + fmt(c) : ''}</p>${extra ? '<p>' + extra + '</p>' : ''}
+    <div class="news">📰 <b>Jornal do Sertão (fictício)</b><br>${head}</div>
+    ${notes.length ? '<ul>' + notes.map(n => '<li>' + n + '</li>').join('') + '</ul>' : '<p>Os efeitos desta escolha ainda vão aparecer com o tempo.</p>'}
+    <button class="btn main" id="okRes">Continuar</button>`;
+  $('#okRes').onclick = () => {
+    S.turn++; S.cur = null;
+    if (S.turn % 12 === 0) S.bal = 1;
+    save(); closeModal(); hot(null); render();
+    if (S.bal) balance();
+  };
+  render();
+}
+
+/* ---------- INTERFACE ---------- */
+function feed(t) { S.feed.unshift({ t, d: `Ano ${year()} — ${MES[S.turn % 12]}` }); S.feed = S.feed.slice(0, 14); }
+function toast(k, title, text) {
+  const d = document.createElement('div'); d.className = 'toast ' + k;
+  const ic = { b: '🔵', y: '🟡', r: '🔴', g: '🟢' }[k];
+  d.innerHTML = `<b>${ic} ${title}</b>${text}`; $('#toasts').appendChild(d);
+  setTimeout(() => d.remove(), 5200);
+  while ($('#toasts').children.length > 3) $('#toasts').firstChild.remove();
+}
+function openModal(lock, cls) { $('#overlay').hidden = false; $('#overlay').dataset.lock = lock ? 1 : ''; $('#modal').className = 'modal ' + (cls || ''); }
+function closeModal() { $('#overlay').hidden = true; if (S) $('#bNext').disabled = false; }
+function info(html) { $('#modal').innerHTML = html + '<p><button class="btn main" id="cl">Fechar</button></p>'; openModal(false); $('#cl').onclick = closeModal; }
+function hot(a) { document.querySelectorAll('.z').forEach(z => z.classList.toggle('hot', z.id === 'a-' + a)); }
+function buildInds() {
+  $('#inds').innerHTML = IND.map(x => `<div class="ind" id="i-${x[0]}"><div class="h"><span>${x[2]} ${x[1]}</span></div><div class="v"></div><div class="bar"><i></i></div></div>`).join('');
+}
+function render() {
+  const y = year();
+  $('#date').textContent = S.turn >= 48 ? 'Fim do mandato' : `Ano ${y} — ${MES[S.turn % 12]}`;
+  $('#budget').textContent = fmt(S.b);
+  IND.forEach(x => {
+    const v = Math.round(S.ind[x[0]]), el = $('#i-' + x[0]), bar = el.querySelector('i');
+    el.querySelector('.v').textContent = x[0] === 'p' ? v + '%' : v;
+    bar.style.width = v + '%'; bar.className = v < 35 ? 'low' : v < 60 ? 'mid' : '';
+    const d = v - Math.round(S.prev[x[0]]);
+    if (d) { const c = document.createElement('span'); c.className = 'chip ' + (d > 0 ? 'p' : 'n'); c.textContent = (d > 0 ? '+' : '') + d; el.appendChild(c); setTimeout(() => c.remove(), 2300); }
+    S.prev[x[0]] = S.ind[x[0]];
+  });
+  zones();
+  $('#fRec').textContent = fmt(S.rec); $('#fGas').textContent = fmt(S.spent + S.exp);
+  $('#fDes').textContent = fmt(expenses()); $('#fRev').textContent = fmt(revenue());
+  $('#feed').innerHTML = S.news.length ? S.news.slice(0, 5).map(n => `<li>${NI[n.c] || '📰'} ${n.t}<small>${n.c} · ${MES[n.m]}, ano ${n.y}</small></li>`).join('') : '<li>Nenhuma notícia ainda. Avance para o primeiro mês.</li>';
+  renderGov();
+  $('#bNext').disabled = !$('#overlay').hidden;
+}
+function screen(id) { ['home', 'game', 'end'].forEach(s => $('#' + s).hidden = s !== id); window.scrollTo(0, 0); }
+function startGame() {
+  screen('game'); buildInds(); S.prev = { ...S.ind }; render();
+  if (!S.advisor) chooseAdvisor(); else if (S.bal) balance(); else if (S.turn >= 48) endGame();
+}
+function home() {
+  screen('home'); const h = hasSave();
+  $('#bContinue').hidden = !h; $('#bErase').hidden = !h;
+}
+function pickDiff(cb) {
+  $('#modal').innerHTML = '<h3>Escolha a dificuldade</h3><div class="diffs">' + Object.keys(DIFF).map(k =>
+    `<button class="opt" data-d="${k}"><span>${DIFF[k].n}<small>${DIFF[k].d}</small></span><b>${fmt(DIFF[k].b)}</b></button>`).join('') + '</div><p><button class="btn small" id="cl">Cancelar</button></p>';
+  openModal(false); $('#cl').onclick = closeModal;
+  document.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { closeModal(); cb(b.dataset.d); });
+}
+
+/* ---------- BALANÇO ANUAL ---------- */
+function balance() {
+  const y = S.turn / 12, L = S.yl.filter(x => x.y === y);
+  const top = L.slice().sort((a, b) => b.c - a.c).slice(0, 3).filter(x => x.c > 0);
+  const probs = L.filter(x => x.g >= 2).map(x => x.t).slice(0, 4);
+  const ups = K.filter(k => S.ind[k] - S.snap[k] >= 3).map(k => `${LBL[k]} (+${Math.round(S.ind[k] - S.snap[k])})`);
+  const pend = K.filter(k => k !== 'p' && S.ind[k] < 40).map(k => `${LBL[k]} (${Math.round(S.ind[k])})`);
+  const ul = a => a.length ? '<ul>' + a.map(t => `<li>${t}</li>`).join('') + '</ul>' : '<p>Nada a destacar.</p>';
+  $('#modal').innerHTML = `<h3>Balanço do ano ${y}</h3>
+    <div class="stats"><div class="stat"><b>${fmt(S.b)}</b><span>Orçamento restante</span></div><div class="stat"><b>${Math.round(S.ind.s)}/100</b><span>Saúde</span></div>
+    <div class="stat"><b>${Math.round(S.ind.e)}/100</b><span>Educação</span></div><div class="stat"><b>${Math.round(S.ind.i)}/100</b><span>Infraestrutura</span></div>
+    <div class="stat"><b>${Math.round(S.ind.p)}%</b><span>Aprovação</span></div></div>
+    <h4>Principais decisões</h4>${ul(top.map(x => `${x.t}: ${x.o} (${fmt(x.c)})`))}
+    <h4>Principais problemas</h4>${ul(probs)}
+    <h4>Melhorias conquistadas</h4>${ul(ups)}
+    <h4>Problemas que ficaram pendentes</h4>${ul(pend.concat(S.pending.length ? [S.pending.length + ' consequência(s) de decisões antigas ainda por vir'] : []))}
+    <p class="say">${adv().ic} ${adv().n}: “${advisorComment('bal')}”</p>
+    <button class="btn main" id="nextY">${y >= 4 ? 'VER FIM DO MANDATO' : 'INICIAR ANO ' + (y + 1)}</button>`;
+  openModal(true);
+  $('#nextY').onclick = () => { S.bal = 0; S.snap = { ...S.ind }; save(); closeModal(); if (y >= 4) endGame(); else render(); };
+}
+
+/* ---------- FINAL DO MANDATO ---------- */
+function report() {
+  const cats = Object.entries(S.catSpend).filter(c => c[1] > 0).sort((a, b) => b[1] - a[1]);
+  const sorted = K.filter(k => k !== 'p').sort((a, b) => S.ind[b] - S.ind[a]);
+  const best = sorted[0], worst = sorted[sorted.length - 1], p = [];
+  p.push(cats.length >= 2 ? `Durante o mandato, a administração concentrou seus investimentos em ${cats[0][0].toLowerCase()} e ${cats[1][0].toLowerCase()}, em um total de ${fmt(S.spent)} aplicados em ${S.dec} decisões.`
+    : `Durante o mandato, a administração aplicou ${fmt(S.spent)} em ${S.dec} decisões.`);
+  p.push(`O melhor desempenho ficou com ${LBL[best].toLowerCase()} (${Math.round(S.ind[best])}/100), enquanto ${LBL[worst].toLowerCase()} terminou em ${Math.round(S.ind[worst])}/100.`);
+  if (S.b > 8000) p.push(`As contas fecharam com folga (${fmt(S.b)}), o que pode indicar prudência, mas também investimentos que deixaram de ser feitos.`);
+  else if (S.b < 1500) p.push(`O caixa terminou no limite (${fmt(S.b)}), sendo o momento mais apertado em ${MES[S.minT % 12]} do ano ${Math.min(4, Math.floor(S.minT / 12) + 1)}.`);
+  else p.push(`O orçamento terminou em ${fmt(S.b)}. O momento mais apertado foi em ${MES[S.minT % 12]} do ano ${Math.min(4, Math.floor(S.minT / 12) + 1)}, com ${fmt(S.minB)}.`);
+  p.push(S.crises ? `${S.crises} crise(s) exigiram respostas emergenciais.` : 'Nenhuma crise grave precisou ser enfrentada.');
+  if (S.zero >= 12) p.push(`Em ${S.zero} ocasiões, a opção foi não gastar ou adiar, o que aliviou o caixa mas deixou problemas se acumularem.`);
+  p.push(S.ind.t >= 70 ? 'A transparência foi um ponto forte da gestão.' : S.ind.t < 40 ? 'A transparência ficou frágil, o que pesou na confiança da população.' : 'A transparência ficou em nível intermediário.');
+  p.push(S.ind.p >= 70 ? 'A população termina o mandato com avaliação favorável.' : S.ind.p < 40 ? 'A população termina o mandato insatisfeita.' : 'A população terminou dividida quanto à gestão.');
+  return p.join(' ');
+}
+function endGame() {
+  S.done = 1; save(); try { localStorage.removeItem(SAVE); localStorage.removeItem(SAVE1); } catch (e) {}
+  screen('end'); closeModal(); hot(null);
+  const st = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+  const big = IND.map(x => st(x[0] === 'p' ? Math.round(S.ind.p) + '%' : Math.round(S.ind[x[0]]) + '/100', x[1].toUpperCase())).join('');
+  const tl = S.tl.slice(-14).map(t => `<p><b>Ano ${t.y}, ${MES[t.m]}:</b> ${t.t}</p>`).join('') || '<p>Nenhum acontecimento de grande porte.</p>';
+  $('#end').innerHTML = `<h1>FIM DO MANDATO</h1>
+    <div class="stats">${st(fmt(S.b), 'ORÇAMENTO FINAL')}${big}</div>
+    <div class="stats">${st(S.dec, 'Decisões tomadas')}${st(S.evs, 'Eventos enfrentados')}${st(S.crises, 'Crises enfrentadas')}${st(fmt(S.spent), 'Investimentos realizados')}${st(fmt(S.gain), 'Economias e receitas extras')}</div>
+    <h3>Relatório final</h3><p class="report">${report()}</p>
+    <h3>Linha do tempo</h3><div class="timeline">${tl}</div>
+    ${legacy()}
+    <p class="quote">“Administrar uma cidade não é escolher entre o certo e o errado. É decidir o que fazer quando não é possível fazer tudo.”</p>
+    <div class="btns" style="justify-content:center"><button class="btn main" id="again">JOGAR NOVAMENTE</button><button class="btn main" id="newE">NOVO MANDATO</button><button class="btn" id="menuE">Menu</button></div>`;
+  const d = S.diff;
+  $('#again').onclick = () => newGame(d);
+  $('#newE').onclick = () => pickDiff(newGame);
+  $('#menuE').onclick = home;
+}
+
+/* ---------- CIDADE VIVA ---------- */
+const ZN = { centro:['🏛️🏥🏫',['t','c','s'],'Centro urbano'], bairros:['🏠🏘️🏠',['s','e'],'Bairros'], rural:['🌾🐐🌵',['r'],'Zona rural'], comunid:['🛖💧🛖',['a'],'Comunidades rurais'], estradas:['🛣️🚌🚧',['i'],'Estradas'] };
+const CI = { 'Saúde':'🏥','Educação':'🏫','Infraestrutura':'🚧','Zona rural':'🌾','Água':'💧','Economia':'💼','Meio ambiente':'🌱','Cultura':'🎭','Transparência':'🏛️','Emergência':'🚨','Finanças':'💰','Assistência social':'🤝','Mobilidade':'🚌','Administração':'🗂️','Política pública':'📑' };
+const AREA = { centro:'Centro urbano', bairros:'Bairros', rural:'Zona rural', comunid:'Comunidades rurais', estradas:'Estradas' };
+const ROLE = { 'Saúde':'Secretária de Saúde','Educação':'Secretário de Educação','Infraestrutura':'Engenheiro da prefeitura','Água':'Técnica de abastecimento','Zona rural':'Extensionista rural','Economia':'Assessor de desenvolvimento','Finanças':'Contadora da prefeitura' };
+function zones() {
+  for (const k in ZN) {
+    const z = $('#a-' + k), v = ZN[k][1].reduce((a, x) => a + S.ind[x], 0) / ZN[k][1].length, st = v < 35 ? 'bad' : v < 55 ? 'warn' : 'ok';
+    ['ok', 'warn', 'bad'].forEach(c => z.classList.toggle(c, c === st));
+    z.innerHTML = `<span class="ic">${ZN[k][0]}</span><small>${ZN[k][2]} ${st === 'bad' ? '⚠️' : st === 'ok' ? '✨' : ''}</small>`;
+  }
+  const w = S.ind.a < 30 ? '🏜️' : S.rain >= S.turn ? '🌧️' : '☀️';
+  $('#wx').textContent = w + (S.ind.p >= 60 ? '😊' : S.ind.p >= 40 ? '😐' : '😠');
+}
+function advisors(e) {
+  const A = [['💰', 'Finanças', S.b < 3000 ? 'O caixa está apertado. Cada real precisa render.' : 'Temos folga hoje, mas ela não dura para sempre.'],
+    ['🧑‍💼', ROLE[e.cat] || 'Técnico da área', e.g >= 2 ? 'Isso não pode esperar. Se piorar, o custo dobra.' : 'Dá para resolver bem, mas há mais de um caminho.'],
+    ['🗣️', S.ind.p < 45 ? 'Vereador da oposição' : 'Assessor de imprensa', S.ind.p < 45 ? 'A população está perdendo a paciência com a gestão.' : 'A imprensa vai acompanhar de perto essa decisão.']];
+  return `<div>${adv().ic} <b>${adv().n}:</b> “${advisorComment('evt', e)}”</div>` + A.sort(() => Math.random() - .5).slice(0, 1).map(a => `<div>${a[0]} <b>${a[1]}:</b> “${a[2]}”</div>`).join('');
+}
+
+/* ---------- 2.0: CONSELHEIROS ---------- */
+const ADV = {
+  angelos:{ n:'Ângelos Pereira', ic:'🤝', role:'Articulador político', d:'Especialista em Câmara, vereadores e relações institucionais. Abre portas, mas executa com menos eficiência.', pol:6, cost:1.06, delay:.04, rel:3, pro:['Mais facilidade para conseguir apoio de vereadores','Relação inicial melhor com a Câmara'], con:['Projetos custam cerca de 6% a mais','Mais risco de atrasos nas obras'] },
+  poli:{ n:'Poli Fecheu', ic:'📐', role:'Planejador e gestor', d:'Focado em orçamento, cronograma e execução. Entrega com eficiência, mas negocia com dificuldade.', pol:-4, cost:.92, delay:-.05, rel:-2, pro:['Projetos cerca de 8% mais baratos','Menos atrasos nas obras'], con:['Mais dificuldade em negociações políticas','Relação inicial mais fria com vereadores'] }
+};
+const adv = () => ADV[S.advisor] || ADV.poli;
+const pk = a => a[Math.floor(Math.random() * a.length)];
+function chooseAdvisor() {
+  show('<h3>Escolha seu conselheiro</h3><p class="say">Durante seu mandato, você contará com um conselheiro principal. Cada conselheiro possui uma visão diferente de governo. Sua escolha modificará suas forças e limitações durante os quatro anos.</p><div class="diffs">' +
+    Object.keys(ADV).map(k => { const a = ADV[k]; return `<button class="opt" data-act="adv" data-a="${k}"><span><b>${a.ic} ${a.n}</b> — ${a.role}<small>${a.d}</small><small>✅ ${a.pro.join(' · ')}</small><small>⚠️ ${a.con.join(' · ')}</small></span></button>`; }).join('') +
+    '</div><p><small>Todos os personagens são fictícios.</small></p>', 1);
+}
+function advisorComment(c, o) {
+  const A = S.advisor === 'angelos', avg = S.council.reduce((a, v) => a + v.rel, 0) / 13, n = S.projects.filter(p => p.st === 'exec').length;
+  const big = o && o.cost > 1500;
+  const T = {
+    proj: A ? [big ? 'Prefeito, esse projeto pode ter resistência na Câmara. Talvez seja melhor conversar com alguns vereadores antes de pautar.' : 'A base deve acompanhar, mas vale ouvir os independentes antes.'] : [big ? 'O projeto é importante, mas precisamos olhar o impacto dele no orçamento dos próximos meses.' : 'Cabe no orçamento, desde que o cronograma seja realista.'],
+    crise: A ? ['Em crise, a Câmara precisa estar do nosso lado. Vale ligar para alguns vereadores hoje.'] : ['Crise se resolve com prioridade e cronograma, não com improviso.'],
+    fin: A ? ['Se o caixa apertar, a oposição vai usar isso na tribuna. Melhor chegar antes.'] : [S.b < 3000 ? 'O caixa está curto. Segure novas obras até o fluxo melhorar.' : 'Há folga no caixa, mas é melhor distribuir os gastos em parcelas.'],
+    vote: A ? ['Conte os votos antes da sessão, prefeito. Durante a votação já não há o que negociar.'] : ['Se aprovar, já deixe o cronograma e o fluxo de pagamento prontos.'],
+    bal: A ? [`A relação com a Câmara está ${relLbl(avg).toLowerCase()}. Isso vai pesar no próximo ano.`] : [`Temos ${n} projeto(s) em execução. Atenção a atrasos e ao caixa.`]
+  };
+  if (c === 'evt') return o.cat === 'Finanças' ? pk(T.fin) : o.g >= 3 ? pk(T.crise) : A ? (o.g >= 2 ? 'Isso pode ter repercussão na Câmara. Vale medir as reações antes.' : 'Pense em quem vai cobrar essa decisão na tribuna.') : (o.g >= 2 ? 'Decida rápido, mas anote o custo. Emergência sem controle vira rombo.' : 'Antes de gastar, veja se cabe no orçamento dos próximos meses.');
+  return pk(T[c] || T.proj);
+}
+
+/* ---------- CÂMARA ---------- */
+const VER = [['Miltinho de Moça','s',1,60],['Vando do Caroço','r',0,55],['Nandoia','e',1,50],['Pano','i',2,45],['Julio Carritel','c',1,70],['Pati Gasosa','m',0,50],['Poseidon do Ônibus','i',1,55],['Wellington das Corridas','c',2,40],['Cosme Santos','a',1,65],['Rielson do Jeans','c',0,60],['André Chaveiro','r',2,45],['Luísa Mel','e',0,55],['Alex Alfaiate','s',2,50]];
+const BASE = ['Oposição', 'Governo', 'Independente'];
+const relLbl = r => r <= 20 ? 'Muito distante' : r <= 40 ? 'Difícil diálogo' : r <= 60 ? 'Neutro' : r <= 80 ? 'Boa relação' : 'Grande proximidade';
+const TI = { yes: '🟢 Tendência: apoiar', no: '🔴 Tendência: contrário', und: '🟡 Tendência: indeciso' };
+function createCouncil(b) {
+  return VER.map((v, i) => ({ id: 'v' + (i + 1), name: v[0], party: v[2] === 1 ? 'Partido Municipalista' : v[2] === 0 ? 'Frente Popular do Sertão' : i % 2 ? 'Aliança Sertaneja' : 'Movimento Cidadão',
+    prof: v[1], gov: v[2], inf: v[3], rel: Math.round(clamp((v[2] === 1 ? 64 : v[2] === 0 ? 42 : 52) + rnd(-8, 8) + b)), rb: Math.round(rnd(50, 90)), sup: 0, last: -9 }));
+}
+const AC = { 'Saúde':'s','Educação':'e','Infraestrutura':'i','Água':'a','Meio ambiente':'m','Economia':'c','Zona rural':'r','Cultura':'c','Assistência social':'s','Mobilidade':'i' };
+function lean(v, p) {
+  return v.rel * .65 + (v.gov === 1 ? 8 : v.gov === 0 ? -8 : 0) + (p && AC[p.area] === v.prof ? 9 : 0) + (S.ind.p - 50) * .2 + (v.sup || 0) + (p && p.sup ? p.sup[v.id] || 0 : 0) + adv().pol * .35 - (p ? p.cost / 1000 * 2.4 : 0);
+}
+const tend = (v, p) => { const l = lean(v, p); return l >= 51 ? 'yes' : l <= 39 ? 'no' : 'und'; };
+const memberCard = v => `<div class="vc"><b>${v.name}</b>🏛️ ${BASE[v.gov]} · ${v.party}<br>🤝 Relação: ${relLbl(v.rel)}<div class="bar"><i class="${v.rel < 35 ? 'low' : v.rel < 60 ? 'mid' : ''}" style="width:${v.rel}%"></i></div>❤️ Interesse: ${LBL[v.prof]}<br>🗳️ ${TI[tend(v, null)]}<br><button class="btn small" data-act="seek" data-a="${v.id}">🤝 BUSCAR APOIO</button></div>`;
+function openCouncil() {
+  const f = S.council.filter(v => tend(v, null) === 'yes').length;
+  show(`<h3>🏛️ Câmara Municipal de Sertânia</h3><p>Apoio atual ao governo: <b>${f}/13</b>. Negocie antes da votação: durante a sessão não há mais conversa.</p><p class="say">${adv().ic} ${adv().n}: “${advisorComment('vote')}”</p><div class="vm">${S.council.map(memberCard).join('')}</div><p><button class="btn" data-act="close">Fechar</button></p>`, 0, 'wide');
+}
+function seekSupport(vid, pid) {
+  const v = S.council.find(x => x.id === vid), p = pid ? S.projects.find(x => x.id === pid) : null, back = p ? `data-act="apoio" data-a="${p.id}"` : 'data-act="cam"';
+  if (v.last === S.turn) return toast('y', 'ATENÇÃO', v.name + ' já foi procurado neste mês.');
+  if (p && p.seeks >= 3) return toast('y', 'ATENÇÃO', 'Este projeto já teve 3 rodadas de articulação.');
+  v.last = S.turn; if (p) p.seeks++;
+  const x = (v.rel - 40) / 100 + adv().pol / 100 + rnd(-.25, .25) + (S.ind.p - 50) / 300 + (v.gov === 0 ? -.08 : 0) + (v.rb - 60) / 400 - (p ? 0 : 0);
+  let m, dr, ds;
+  if (x > .22) { m = `${v.name} sinalizou apoio ao governo.`; dr = 8; ds = 10; }
+  else if (x > 0) { m = `${v.name} prefere aguardar antes de assumir compromisso.`; dr = 2; ds = 0; }
+  else { m = `A conversa não foi bem recebida por ${v.name}.`; dr = -5; ds = -4; }
+  v.rel = clamp(v.rel + dr);
+  if (p) p.sup[v.id] = (p.sup[v.id] || 0) + ds; else v.sup = (v.sup || 0) + ds;
+  save();
+  show(`<h3>🤝 Conversa com ${v.name}</h3><p class="say">${adv().ic} ${adv().n}: “${advisorComment('vote')}”</p><div class="news">${m}</div><p><span class="chip2">${dr >= 0 ? '+' : ''}${dr} relação</span><span class="chip2">${ds > 0 ? 'apoio conquistado' : ds < 0 ? 'apoio perdido' : 'apoio permanece indefinido'}</span></p><button class="btn main" ${back}>Voltar</button>`, 0);
+}
+
+/* ---------- PROJETOS ---------- */
+const AL = ['Saúde','Educação','Infraestrutura','Água','Meio ambiente','Economia','Zona rural','Cultura','Assistência social','Mobilidade'];
+const PR = [
+  ['h_ubs','Saúde','Reforma de UBS',900,6,'s10 p3'],['h_amb','Saúde','Compra de ambulância',380,3,'s6 r2 p2'],['h_amp','Saúde','Ampliação de atendimento',1200,8,'s12 p4'],['h_hosp','Saúde','Expansão do Hospital Municipal',4200,18,'s22 p6 c2'],
+  ['e_ref','Educação','Reforma de escolas',1000,8,'e12 p4'],['e_tr','Educação','Transporte escolar',600,4,'e7 r4 p3'],['e_mer','Educação','Qualidade da merenda',350,4,'e6 r3 p2'],['e_eq','Educação','Equipamentos escolares',500,5,'e8 p2'],
+  ['i_pav','Infraestrutura','Pavimentação de bairros',1800,10,'i16 c4 p5',2],['i_luz','Infraestrutura','Iluminação pública',700,5,'i7 m2 p3',2],['i_est','Infraestrutura','Recuperação de estradas',1400,8,'i12 r8 p4',2,'estradaOk'],['i_dren','Infraestrutura','Sistema de drenagem',1600,10,'i10 p3',2,'dren'],
+  ['r_poco','Zona rural','Perfuração de poços',800,6,'a10 r8 p3',2],['r_agri','Zona rural','Apoio à agricultura familiar',650,6,'r10 c4 p3',2],['r_trans','Zona rural','Transporte rural',450,4,'r7 c2',2],['a_adut','Água','Nova adutora',2200,12,'a18 p4',2],
+  ['c_merc','Economia','Mercado municipal',1500,10,'c14 p4 r3',3],['c_inc','Economia','Incentivo ao comércio',500,4,'c8 p2',3],['c_feira','Economia','Feira regional',600,5,'c9 r3 p3',3],
+  ['m_arb','Meio ambiente','Arborização urbana',350,5,'m8 p2 s1',3],['m_rec','Meio ambiente','Recuperação de áreas degradadas',700,8,'m12 r3',3],['m_res','Meio ambiente','Gestão de resíduos',900,8,'m12 s3 p3',3],
+  ['u_cult','Cultura','Centro cultural',1100,8,'p7 c4 e2',3],['s_soc','Assistência social','Rede de proteção social',800,6,'p6 s3 e2',2],['mob_t','Mobilidade','Plano de mobilidade',900,7,'i6 c4 p3',3],
+  ['g_obra','Infraestrutura','Grande obra de legado',3500,14,'i16 c8 p8',4],['g_esp','Economia','Programa especial Sertânia 2030',1800,10,'s5 e5 r5 p6',4],['g_pol','Saúde','Policlínica regional',2800,12,'s16 p6 c3',4],
+  ['p_estEmerg','Infraestrutura','Recuperação emergencial de estradas',500,3,'i8 r7 p3',99],['p_saudeEmerg','Saúde','Ampliação emergencial da rede de atendimento',900,4,'s14 p4',99],['p_eduRec','Educação','Programa de recuperação educacional',600,5,'e12 p3',99],
+  ['p_aguaEmerg','Água','Operação permanente de água',900,5,'a14 r5',99],['p_pocos','Zona rural','Poços emergenciais',700,4,'a10 r10',99],['p_aedes','Saúde','Controle permanente de arboviroses',350,4,'s7 m2',99]
+].map(a => ({ id: a[0], area: a[1], title: a[2], cost: a[3], months: a[4], f: a[5], y: a[6] || 1, flag: a[7] }));
+const pdef = id => PR.find(p => p.id === id);
+const dt = t => `${MES[t % 12]} de ${2027 + Math.floor(t / 12)}`;
+const eta = p => S.turn + Math.ceil((100 - p.prog) / (100 / p.months));
+const fxTxt = s => Object.entries(fx(s)).filter(e => e[0] !== '$').map(e => `${LBL[e[0]]} <b>${e[1] > 0 ? '+' : ''}${e[1]}</b>`).join(' · ');
+const ST = { proposto:['🟡','Aguardando pauta'], pauta:['🟡','Aguardando votação'], exec:['🔵','Em execução'], entregue:['🟢','Entregue'], rejeitado:['🔴','Rejeitado'] };
+const scale = (o, k) => Object.fromEntries(Object.entries(o).map(e => [e[0], e[1] * k]));
+const avail = area => PR.filter(p => p.area === area && (p.y <= year() || S.unl.includes(p.id)) && !S.projects.some(x => x.pid === p.id && x.st !== 'rejeitado') && !(S.blocked[p.id] > S.turn));
+function unlock(id) { if (S.unl.includes(id)) return; S.unl.push(id); const d = pdef(id); toast('b', 'PROJETO DESBLOQUEADO', d.title); publishNews('Prefeitura', 'Prefeitura estuda novo projeto: ' + d.title.toLowerCase(), 'A situação da cidade abriu espaço para uma nova proposta.'); }
+const projCard = p => { const d = pdef(p.pid), s = ST[p.st]; return `<div class="pc"><b>${CI[p.area] || '📋'} ${d.title}</b> <span class="chip2">${s[0]} ${s[1]}</span><br><small>${fmt(p.cost)} · ${p.months} meses${p.st === 'exec' ? ' · previsão: ' + dt(eta(p)) : ''}</small><div class="bar"><i style="width:${p.prog}%"></i></div><button class="btn small" data-act="ficha" data-a="${p.id}">Ver ficha</button></div>`; };
+function openProjects() {
+  show('<h3>📋 Projetos municipais</h3><button class="btn main" data-act="create">+ CRIAR NOVO PROJETO</button>' + (S.projects.length ? S.projects.slice().reverse().map(projCard).join('') : '<p>Nenhum projeto ainda. Novas opções surgem a cada ano e em resposta ao que acontece na cidade.</p>') + '<p><button class="btn" data-act="close">Fechar</button></p>', 0, 'wide');
+}
+function openCreate() {
+  show('<h3>Criar projeto</h3><p>Escolha a área:</p><div class="vm">' + AL.map(a => { const n = avail(a).length; return `<button class="opt" data-act="area" data-a="${a}" ${n ? '' : 'disabled'}><span>${CI[a] || '📋'} ${a}</span><b>${n}</b></button>`; }).join('') + '</div><p><small>Áreas com 0 não têm projetos disponíveis agora.</small></p><button class="btn" data-act="proj">Voltar</button>', 0, 'wide');
+}
+function areaList(a) {
+  show(`<h3>${CI[a] || ''} ${a}</h3>` + avail(a).map(d => `<button class="opt" data-act="mk" data-a="${d.id}"><span>${d.title}${S.unl.includes(d.id) ? ' 🔔' : ''}<small>Prazo: ${d.months} meses · ${fxTxt(d.f)}</small></span><b>${fmt(Math.round(d.cost * costMult() * adv().cost / 10) * 10)}</b></button>`).join('') + '<p><button class="btn" data-act="create">Voltar</button></p>', 0);
+}
+function createProject(pid) {
+  const d = pdef(pid), p = { id: 'p' + (S.projects.length + 1), pid, area: d.area, cost: Math.round(d.cost * costMult() * adv().cost / 10) * 10, months: d.months, st: 'proposto', prog: 0, sup: {}, seeks: 0 };
+  S.projects.push(p); save(); ficha(p.id);
+}
+function ficha(id) {
+  const p = S.projects.find(x => x.id === id), d = pdef(p.pid), s = ST[p.st], ok = S.b >= p.cost * .25;
+  const btn = p.st === 'proposto' ? `<button class="btn main" data-act="pautar" data-a="${id}" ${ok ? '' : 'disabled'}>PAUTAR NA CÂMARA</button>${ok ? '' : '<p><small>Orçamento insuficiente: é preciso ter ao menos 25% do valor em caixa.</small></p>'}`
+    : p.st === 'pauta' ? `<button class="btn" data-act="apoio" data-a="${id}">🤝 BUSCAR APOIO</button> <button class="btn main" data-act="vote" data-a="${id}">IR PARA A VOTAÇÃO</button>` : p.st === 'rejeitado' ? '<p><small>Poderá ser reapresentado em alguns meses.</small></p>' : '';
+  show(`<span class="tag">${CI[p.area] || ''} ${p.area}</span><span class="tag g0">${s[0]} ${s[1]}</span><h3>${d.title.toUpperCase()}</h3>${p.pl ? `<p><small>Projeto de Lei nº ${p.pl}</small></p>` : ''}
+    <div class="stats"><div class="stat"><b>${fmt(p.cost)}</b><span>Investimento</span></div><div class="stat"><b>${p.months} meses</b><span>Prazo</span></div></div>
+    <p><b>Impacto estimado:</b> ${fxTxt(d.f)}</p><div class="bar"><i style="width:${p.prog}%"></i></div>
+    ${p.st === 'exec' ? `<p>${Math.round(p.prog)}% concluído · previsão: ${dt(eta(p))}${p.stall ? ' · <b>obra parada por falta de recursos</b>' : ''}</p>` : ''}${p.votes ? `<p>Votação: SIM ${p.votes.y} × NÃO ${p.votes.n}</p>` : ''}
+    <p class="say">${adv().ic} ${adv().n}: “${advisorComment('proj', p)}”</p>${btn} <button class="btn" data-act="proj">Projetos</button>`, 0);
+}
+function pautar(id) {
+  const p = S.projects.find(x => x.id === id); p.st = 'pauta'; p.pl = String(++S.plN).padStart(3, '0') + '/' + (2026 + year());
+  publishNews('Câmara', 'Prefeitura envia projeto à Câmara: ' + pdef(p.pid).title, `O Projeto de Lei nº ${p.pl} entrou na pauta da Câmara.`); toast('b', 'NOVA OPORTUNIDADE', 'Projeto na pauta. Busque apoio antes da votação.'); save(); ficha(id);
+}
+function apoioPick(id) {
+  const p = S.projects.find(x => x.id === id);
+  show(`<h3>🤝 Buscar apoio</h3><p>${pdef(p.pid).title} · conversas restantes: <b>${3 - p.seeks}</b></p><div class="vm">` + S.council.map(v => `<div class="vc"><b>${v.name}</b>${BASE[v.gov]} · ${relLbl(v.rel)}<br>${TI[tend(v, p)]}<br><button class="btn small" data-act="seek" data-a="${v.id}" data-b="${id}" ${v.last === S.turn || p.seeks >= 3 ? 'disabled' : ''}>Conversar</button></div>`).join('') + `</div><p><button class="btn" data-act="ficha" data-a="${id}">Ficha</button> <button class="btn main" data-act="vote" data-a="${id}">IR PARA A VOTAÇÃO</button></p>`, 0, 'wide');
+}
+function updateProjects() {
+  S.projects.filter(p => p.st === 'exec').forEach(p => {
+    const d = pdef(p.pid), inst = p.cost / p.months, nc = NC[p.area] || 'Prefeitura';
+    if (S.b < inst) { if (!p.stall) publishNews(nc, 'Obra parada por falta de recursos', d.title + ' aguarda caixa.'); p.stall = 1; return; }
+    p.stall = 0; S.b -= inst; S.spent += inst; S.catSpend[p.area] = (S.catSpend[p.area] || 0) + inst;
+    const r = Math.random(), dl = .1 + adv().delay; let step = 100 / p.months;
+    if (r < dl) { step = 0; p.months++; publishNews(nc, 'Obra municipal sofre atraso e prazo é ampliado', d.title + ' terá um mês a mais de execução.'); }
+    else if (r < dl + .06) { p.cost += Math.round(p.cost * .05); toast('y', 'ATENÇÃO', 'Custo de ' + d.title + ' aumentou.'); publishNews(nc, 'Custo de obra municipal aumenta', d.title + ' precisou de reajuste.'); }
+    else if (r > .95) { step *= 2; publishNews(nc, 'Obra avança mais rápido que o previsto', d.title + ' ganhou ritmo.'); }
+    const b = p.prog; p.prog = Math.min(100, p.prog + step);
+    if (b < 50 && p.prog >= 50) { apply(scale(fx(d.f), .5)); toast('g', 'RESULTADO POSITIVO', d.title + ' chegou à metade.'); }
+    if (p.prog >= 100) {
+      p.st = 'entregue'; apply(scale(fx(d.f), .5)); if (d.flag) S.flags[d.flag] = 1; toast('g', 'RESULTADO POSITIVO', d.title + ' foi entregue!');
+      publishNews(nc, 'Prefeitura entrega: ' + d.title.toLowerCase(), 'Obra concluída com investimento de ' + fmt(p.cost) + '.'); S.tl.push({ y: year(), m: S.turn % 12, t: 'Entregue: ' + d.title });
+    }
+  });
+  [['e','p_eduRec'],['s','p_saudeEmerg'],['a','p_aguaEmerg'],['i','p_estEmerg']].forEach(x => { if (S.ind[x[0]] < 30) unlock(x[1]); });
+}
+
+/* ---------- VOTAÇÃO ---------- */
+let SK = false;
+const sleep = ms => new Promise(r => setTimeout(r, SK ? 0 : ms));
+function beep(x) { try { const c = beep.c || (beep.c = new (window.AudioContext || window.webkitAudioContext)()), o = c.createOscillator(), g = c.createGain(); o.frequency.value = x === 'SIM' ? 660 : x === 'NÃO' ? 300 : 440; g.gain.value = .05; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .12); } catch (e) {} }
+function voteIntro(id) {
+  const p = S.projects.find(x => x.id === id), c = { yes: 0, no: 0, und: 0 }; S.council.forEach(v => c[tend(v, p)]++);
+  show(`<div class="vtitle">CÂMARA MUNICIPAL DE SERTÂNIA</div><h4>Projeto de Lei nº ${p.pl}</h4><h3>${pdef(p.pid).title.toUpperCase()}</h3><p>13 vereadores</p>
+    <div class="stats"><div class="stat"><b>🟢 ${c.yes}</b><span>Favoráveis</span></div><div class="stat"><b>🔴 ${c.no}</b><span>Contrários</span></div><div class="stat"><b>🟡 ${c.und}</b><span>Indecisos</span></div></div>
+    <p class="say">${adv().ic} ${adv().n}: “${advisorComment('vote')}”</p><button class="btn main big" data-act="go" data-a="${id}">INICIAR VOTAÇÃO</button><button class="btn" data-act="ficha" data-a="${id}">Voltar</button>`, 0, 'vote');
+}
+async function runVote(p) {
+  SK = false;
+  const vs = S.council.map(v => ({ v, x: Math.random() < .05 ? 'AUS' : lean(v, p) + rnd(-9, 9) >= 40 ? 'SIM' : 'NÃO' })); let y = 0, n = 0;
+  const paint = (h) => show(`<div class="vtitle">PL nº ${p.pl} · ${pdef(p.pid).title}</div><div class="vbar"><i style="width:${h.pct}%"></i></div>${h.body}<div class="vscore">SIM ${y} × NÃO ${n}</div><button class="btn small" data-act="skip">Pular animação</button>`, 1, 'vote');
+  for (let i = 0; i < vs.length; i++) {
+    if (i === vs.length - 1) { paint({ pct: i / 13 * 100, body: '<div class="vname">VOTAÇÃO EM ANDAMENTO</div><div class="vvote a">Último voto.</div>' }); await sleep(1900); }
+    const x = vs[i].x; if (x === 'SIM') y++; else if (x === 'NÃO') n++;
+    paint({ pct: (i + 1) / 13 * 100, body: `<div class="vname">${vs[i].v.name.toUpperCase()}</div><div class="vvote ${x === 'SIM' ? 'y' : x === 'NÃO' ? 'n' : 'a'}">${x === 'SIM' ? '🟢 SIM' : x === 'NÃO' ? '🔴 NÃO' : '⚪ AUSENTE'}</div>` });
+    beep(x); await sleep(1100);
+  }
+  finishVote(p, y, n, vs);
+}
+function finishVote(p, y, n, vs) {
+  let note = '';
+  if (y === n) { const pr = S.council.slice().sort((a, b) => b.inf - a.inf)[0], pv = lean(pr, p) >= 45; if (pv) y++; else n++; note = `<p class="news">Empate. Pelo regimento fictício do simulador, o presidente da Câmara (${pr.name}, o vereador de maior influência) tem voto de qualidade: <b>${pv ? 'SIM' : 'NÃO'}</b>.</p>`; }
+  const ok = y > n, t = pdef(p.pid).title;
+  vs.forEach(o => { if (o.x === 'SIM') o.v.rel = clamp(o.v.rel + .5); else if (o.x === 'NÃO' && ok) o.v.rel = clamp(o.v.rel - .5); });
+  p.votes = { y, n }; S.votes.push({ t, y, n });
+  if (ok) { p.st = 'exec'; apply(fx('p1')); publishNews('Câmara', 'Câmara aprova ' + t.toLowerCase(), 'Projeto segue agora para execução pela Prefeitura.'); }
+  else { p.st = 'rejeitado'; S.blocked[p.pid] = S.turn + 6; apply(fx('p-2')); publishNews('Câmara', 'Câmara rejeita projeto apresentado pela Prefeitura', 'Proposta não alcançou votos suficientes durante a sessão.'); }
+  S.tl.push({ y: year(), m: S.turn % 12, t: (ok ? 'Aprovado: ' : 'Rejeitado: ') + t + ` (${y}×${n})` });
+  save(); render();
+  show(`<div class="vtitle">RESULTADO</div><div class="vscore">SIM ${y} × NÃO ${n}</div>${note}<h3>${ok ? '🟢 PROJETO APROVADO' : '🔴 PROJETO REJEITADO'}</h3><p>${ok ? 'A Câmara Municipal aprovou o projeto. O projeto seguirá para execução.' : 'A proposta não obteve votos suficientes. O projeto não poderá ser executado neste momento.'}</p>
+    <p class="say">${adv().ic} ${adv().n}: “${ok ? advisorComment('vote') : 'Vamos entender quem não acompanhou e por quê.'}”</p><button class="btn main" data-act="proj">Ver projetos</button> <button class="btn" data-act="close">Fechar</button>`, 0, 'vote');
+}
+
+/* ---------- TRIBUNA DO MOCOTÓ ---------- */
+const NI = { Prefeitura:'🏛️', 'Câmara':'⚖️', 'Saúde':'🏥', 'Educação':'📚', Economia:'💼', Infraestrutura:'🚧', 'Zona rural':'🌾', 'Política Municipal':'🗳️', Cotidiano:'☕' };
+const NC = { 'Saúde':'Saúde','Educação':'Educação','Economia':'Economia','Infraestrutura':'Infraestrutura','Zona rural':'Zona rural','Água':'Zona rural','Transparência':'Política Municipal','Administração':'Política Municipal','Política pública':'Política Municipal' };
+const EVU = { chuvas:'p_estEmerg', estradaPiora:'p_estEmerg', crisSaude:'p_saudeEmerg', crisEdu:'p_eduRec', evasao:'p_eduRec', crisAgua:'p_aguaEmerg', seca:'p_pocos', dengue:'p_aedes' };
+function publishNews(c, t, s) { S.news.unshift({ c, t, s, y: year(), m: S.turn % 12, n: 1 }); S.news = S.news.slice(0, 40); }
+function openTribuna() {
+  const N = S.news, top = N[0];
+  show(`<div class="paper"><h1>TRIBUNA DO MOCOTÓ</h1><div class="sl">O portal de notícias de Sertânia · Informação, política e acontecimentos da cidade.</div>` + (top ? `<small>MANCHETE PRINCIPAL · ${NI[top.c] || '📰'} ${top.c}</small><div class="head">${top.t}</div><p>${top.s}</p><small>${MES[top.m]}, ano ${top.y}</small><h4>ÚLTIMAS NOTÍCIAS</h4>` + N.slice(1, 13).map(n => `<div class="nw"><small>${NI[n.c] || '📰'} ${n.c} · ${MES[n.m]}, ano ${n.y}</small><b>${n.t}</b>${n.s}</div>`).join('') : '<p>Sem notícias por enquanto. Avance o mês.</p>') + '</div><p><button class="btn" data-act="close">Fechar</button></p>', 0, 'wide');
+  N.forEach(n => n.n = 0); renderGov();
+}
+function openAdvisor() {
+  const a = adv();
+  show(`<h3>${a.ic} ${a.n}</h3><span class="tag">${a.role}</span><p>${a.d}</p><p>✅ ${a.pro.join('<br>✅ ')}</p><p>⚠️ ${a.con.join('<br>⚠️ ')}</p><p class="say" id="advq">“${advisorComment('proj')}”</p><button class="btn main" data-act="advice">Pedir outro conselho</button> <button class="btn" data-act="close">Fechar</button>`, 0);
+}
+function renderGov() {
+  const f = S.council.filter(v => tend(v, null) === 'yes').length, ex = S.projects.filter(p => p.st === 'exec').length, avg = S.council.reduce((a, v) => a + v.rel, 0) / 13, un = S.news.filter(n => n.n).length;
+  $('#gov').innerHTML = `<h3>Situação do governo</h3><div class="gv"><div><span>🏛️ Câmara</span><b>${f}/13</b><small>apoio</small></div><div><span>📋 Projetos</span><b>${ex}</b><small>em execução</small></div><div><span>🤝 Relação institucional</span><b>${relLbl(avg).split(' ')[0]}</b></div><div><span>📰 Notícias</span><b>${un}</b><small>novas</small></div></div>`;
+}
+function legacy() {
+  const P = S.projects, c = s => P.filter(p => p.st === s).length, ap = c('exec') + c('entregue'), pres = P.filter(p => p.pl).length;
+  const f = S.council.filter(v => tend(v, null) === 'yes').length, avg = S.council.reduce((a, v) => a + v.rel, 0) / 13, ti = S.votes.slice().sort((a, b) => Math.abs(a.y - a.n) - Math.abs(b.y - b.n))[0];
+  const st = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+  return `<h3>🏛️ Legado legislativo</h3><div class="stats">${st(pres, 'Projetos apresentados')}${st(ap, 'Aprovados')}${st(c('rejeitado'), 'Rejeitados')}${st(c('entregue'), 'Concluídos')}${st(c('exec'), 'Em execução')}</div>
+    <p class="report">Ao lado de ${adv().n}, a gestão levou ${pres} projeto(s) à Câmara; ${ap} foram aprovados e ${c('rejeitado')} rejeitados. ${ti ? `A votação mais apertada foi “${ti.t}”, decidida em ${ti.y} × ${ti.n}.` : 'Nenhuma votação chegou a acontecer no plenário.'} A relação final com a Câmara é de ${relLbl(avg).toLowerCase()}, com apoio provável de ${f} dos 13 vereadores.</p>`;
+}
+const ACT = { close: closeModal, cam: openCouncil, proj: openProjects, cons: openAdvisor, trib: openTribuna, create: openCreate,
+  adv: a => { S.advisor = a; S.council.forEach(v => { v.rel = clamp(v.rel + adv().rel); }); save(); closeModal(); render(); toast('g', 'RESULTADO POSITIVO', adv().n + ' é seu conselheiro.'); },
+  seek: (a, b) => seekSupport(a, b), ficha: a => ficha(a), area: a => areaList(a), mk: a => createProject(a), pautar: a => pautar(a), apoio: a => apoioPick(a), vote: a => voteIntro(a),
+  go: a => runVote(S.projects.find(p => p.id === a)), skip: () => { SK = true; }, advice: () => { $('#advq').textContent = '“' + advisorComment(pk(['proj', 'fin', 'vote', 'crise'])) + '”'; } };
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-act]'); if (b && ACT[b.dataset.act]) ACT[b.dataset.act](b.dataset.a, b.dataset.b); });
+const show = (html, lock, cls) => { $('#modal').innerHTML = html; openModal(lock, cls); };
+function migrate(s) { s.council = s.council || createCouncil(0); s.projects = s.projects || []; s.news = s.news || []; s.votes = s.votes || []; s.unl = s.unl || []; s.blocked = s.blocked || {}; s.plN = s.plN || 0; if (s.advisor === undefined) s.advisor = null; return s; }
+
+/* ---------- INICIALIZAÇÃO ---------- */
+$('#bNew').onclick = () => pickDiff(newGame);
+$('#bContinue').onclick = () => { S = load(); if (S) startGame(); };
+$('#bErase').onclick = () => { if (confirm('Apagar o progresso salvo?')) { try { localStorage.removeItem(SAVE); localStorage.removeItem(SAVE1); } catch (e) {} home(); } };
+$('#bHow').onclick = () => info(`<h3>Como jogar</h3><ul><li>Você terá um orçamento municipal.</li><li>Cada rodada apresenta uma situação.</li><li>Você precisa escolher uma ação.</li><li>Toda decisão possui consequências.</li><li>Algumas consequências aparecem somente várias rodadas depois.</li><li>Eventos acontecem aleatoriamente.</li><li>Não existe uma estratégia perfeita.</li><li>Toda escolha envolve prioridades e renúncias.</li><li>O mandato possui 4 anos.</li><li>Ao final, o desempenho da gestão será apresentado.</li></ul>`);
+$('#bAbout').onclick = () => info('<h3>Sobre o simulador</h3><p>“Sertânia: Desafio de Gestão” é uma simulação fictícia e educativa inspirada na realidade de um município do sertão pernambucano. Não representa a Prefeitura de Sertânia, e nenhuma pessoa real, orçamento ou decisão é retratada.</p><p>Os valores são inventados. O objetivo é mostrar que gestão pública envolve recursos limitados, problemas simultâneos e prioridades em conflito.</p>');
+$('#bNext').onclick = nextTurn;
+$('#bMenu').onclick = () => { save(); home(); };
+$('#overlay').onclick = e => { if (e.target.id === 'overlay' && !$('#overlay').dataset.lock) closeModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#overlay').hidden && !$('#overlay').dataset.lock) closeModal(); });
+home();
+
+</script>
+</body>
+</html>
